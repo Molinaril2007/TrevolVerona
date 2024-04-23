@@ -68,6 +68,7 @@ public class Controller {
 
             vista.aggiornaComuni(vista.inserimenti);
             vista.getPannelloElencoComuni().validate();
+
             if (checkVittorie()) {
                 JOptionPane.showMessageDialog(null, "Complimenti, sei riuscito a collegare inizio e fine!", "HAI VINTO!", JOptionPane.INFORMATION_MESSAGE);
 //                    System.exit(0);
@@ -127,9 +128,11 @@ public class Controller {
             int linesToWrite = 0;
             while ((line = reader.readLine()) != null) {
                 if (line.contains("<path id=\"" + source.toLowerCase())) {
+                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(231, 110, 216)");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + destination.toLowerCase())) {
+                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(255, 127, 39)");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + desiredId)) {
@@ -200,5 +203,10 @@ public class Controller {
             }
         }
         return false;
+    }
+
+    public void printCollection (List<Comune> comuni) {
+        for (Comune c : comuni)
+            System.out.println(c.getNome() + " ");
     }
 }

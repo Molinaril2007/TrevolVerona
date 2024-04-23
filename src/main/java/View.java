@@ -30,7 +30,9 @@ public class View extends JFrame {
         pulsanteInvia = new JButton("Invia");
         comuneInserito = "";
         source = new JLabel(comuneS.getNome().toUpperCase());
+        source.setForeground(new Color(231, 110, 216));
         destination = new JLabel(comuneD.getNome().toUpperCase());
+        destination.setForeground(new Color(255, 127, 39));
         canvas = new JSVGCanvas();
 
         if (min <= 3)
@@ -69,7 +71,13 @@ public class View extends JFrame {
 
         pannelloNomi.setBackground(new Color(255, 0, 0));
         pannelloTentativi.add(lblMaxGuess);
-
+/*
+        pannelloMappa.setBackground(new Color(40, 40, 40));
+        pannelloInput.setBackground(new Color(40, 40, 40));
+        pannelloTentativi.setBackground(new Color(40, 40, 40));
+        pannelloNomi.setBackground(new Color(40, 40, 40));
+        pannelloElencoComuni.setBackground(new Color(40, 40, 40));
+*/
         add(pannelloInput, BorderLayout.NORTH);
         add(pannelloNomi);
         add(pannelloMappa, BorderLayout.LINE_START);
