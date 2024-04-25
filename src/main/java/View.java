@@ -5,7 +5,7 @@ import org.apache.batik.swing.JSVGCanvas;
 public class View extends JFrame {
     private JFrame finestra;
     private JPanel pannelloInput, pannelloMappa, pannelloNomi, pannelloElencoComuni, pannelloTentativi;
-    private JButton pulsanteInvia;
+    private JButton pulsanteInvia, btnProva;
     private JTextField inserisciComuni;
     private String comuneInserito;
     private JLabel etichetta, mappaTesto, lblMaxGuess, source, destination;
@@ -17,7 +17,7 @@ public class View extends JFrame {
 
 
 
-    public View(String titolo, Comune comuneS, Comune comuneD, int min) throws Exception {
+    public View(String titolo, Comune comuneS, Comune comuneD, int min) {
         super();
         this.comuneD = comuneD;
         this.comuneS = comuneS;
@@ -30,10 +30,11 @@ public class View extends JFrame {
         pulsanteInvia = new JButton("Invia");
         comuneInserito = "";
         source = new JLabel(comuneS.getNome().toUpperCase());
-        source.setForeground(new Color(231, 110, 216));
+        source.setForeground(new Color(163, 73, 164));
         destination = new JLabel(comuneD.getNome().toUpperCase());
-        destination.setForeground(new Color(255, 127, 39));
+        destination.setForeground(new Color(255, 242, 0));
         canvas = new JSVGCanvas();
+        btnProva = new JButton("prova");
 
         if (min <= 3)
             guess = min + 4;
@@ -55,6 +56,7 @@ public class View extends JFrame {
         pannelloInput.add(etichetta);
         pannelloInput.add(inserisciComuni);
         pannelloInput.add(pulsanteInvia);
+        pannelloInput.add(btnProva);
 
 
         pannelloElencoComuni = new JPanel();
@@ -101,6 +103,14 @@ public class View extends JFrame {
         }
     }
 
+
+    public JButton getBtnProva() {
+        return btnProva;
+    }
+
+    public void setBtnProva(JButton btnProva) {
+        this.btnProva = btnProva;
+    }
 
     public Comune getComuneS() {
         return comuneS;

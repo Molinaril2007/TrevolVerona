@@ -2,6 +2,8 @@ import org.apache.batik.swing.JSVGCanvas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.*;
@@ -16,18 +18,31 @@ public class Controller {
     List<String> comuniSVG = new ArrayList<>();
     List<String> nomiInseriti = new ArrayList<>();
     Set<Comune> percorso = new HashSet<>();
-    boolean primoAvvio = true;
+    boolean primoAvvio = true, stato = false;
+    Set<Comune> percorsoBreve = new HashSet<>();
 
 
     //Costruttore
     public Controller(View vista, List<Comune> comuni, List<Comune> scelte) {
         this.vista = vista;
 
+        percorsoBreve.addAll(scelte);
+
+        percorsoBreve.remove(vista.getComuneS());
+        percorsoBreve.remove(vista.getComuneD());
         aggiornaMappa();
         primoAvvio = false;
 
         vista.getPulsanteInvia().addActionListener(e-> invia(comuni, scelte));
         vista.getInserisciComuni().addActionListener(e -> invia(comuni, scelte));
+        vista.getBtnProva().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stato = !stato;
+                System.out.println("Hai premuto il bottone");
+                System.out.println("Variabile stato : " + stato);
+            }
+        });
     }
 
     //Metodi vari ed eventuali
@@ -70,8 +85,27 @@ public class Controller {
             vista.getPannelloElencoComuni().validate();
 
             if (checkVittorie()) {
+
                 JOptionPane.showMessageDialog(null, "Complimenti, sei riuscito a collegare inizio e fine!", "HAI VINTO!", JOptionPane.INFORMATION_MESSAGE);
-//                    System.exit(0);
+                if (checkShortestPath())
+                    JOptionPane.showMessageDialog(null, "Sei andato da " + vista.getComuneS().getNome() + " a " + vista.getComuneD().getNome() + " con " + percorso.size() + " tentativi" + "\nLa soluzione più breve era in " + percorsoBreve.size() + " tentativi");
+                else {
+                    String tentativo = percorsoBreve.size() == 1 ? "tentativo" : "tentativi";
+                    JOptionPane.showMessageDialog(null, "Sei andato da " + vista.getComuneS().getNome() + " a " + vista.getComuneD().getNome() + " con " + percorso.size() +" " + tentativo +
+                            "\nIl percorso più corto era: " + printCollection(scelte) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + tentativo);
+
+                }
+                int scelta = JOptionPane.showConfirmDialog(null, "Vuoi fare un altra partita?");
+                if (scelta == 0) {
+                    System.out.println("Hai premuto si");
+                } else if (scelta == 1)
+                    System.out.println("hai premuto no");
+                else if (scelta == 2)
+                    System.out.println("hai premuto annulla");
+                else
+                    System.out.println("Finestra chiusa");
+                System.exit(0);
+                System.out.println("Helo");
                 vista.getInserisciComuni().setEditable(false);
                 vista.getPulsanteInvia().setEnabled(false);
             }
@@ -117,22 +151,20 @@ public class Controller {
         try (BufferedReader reader = new BufferedReader(new FileReader(".\\src\\main\\java\\img\\mappa.svg"));
              BufferedWriter writer = new BufferedWriter(new FileWriter(".\\src\\main\\java\\img\\mappaNuova.svg"))) {
             String line;
-            // Scrivi le prime tre righe nel nuovo file
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             writer.write("<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"381px\" height=\"459px\"  viewBox=\"0 0 381 459\" version=\"1.1\">\r\n" + //
                     "\n");
             writer.write("<g id=\"surface1\">\n");
 
-            // Lettura delle righe successive e scrittura delle righe desiderate
             boolean writeNextLines = false;
             int linesToWrite = 0;
             while ((line = reader.readLine()) != null) {
                 if (line.contains("<path id=\"" + source.toLowerCase())) {
-                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(231, 110, 216)");
+                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(163, 73, 164)");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + destination.toLowerCase())) {
-                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(255, 127, 39)");
+                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(255, 242, 0)");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + desiredId)) {
@@ -142,6 +174,7 @@ public class Controller {
                 if (writeNextLines || linesToWrite > 0) {
                     comuniSVG.add(line + "\n");
                     for (String string : comuniSVG) {
+                        string = string.replace("rgb(97.254902%,76.470588%,0%)", "rgb(216, 63, 89)");
                         writer.write(string);
                     }
                     linesToWrite = 0;
@@ -205,8 +238,19 @@ public class Controller {
         return false;
     }
 
-    public void printCollection (List<Comune> comuni) {
-        for (Comune c : comuni)
-            System.out.println(c.getNome() + " ");
+    public String printCollection (List<Comune> scelte) {
+        String comuni = "";
+        for (Comune c : scelte) {
+            if (c.equals(vista.getComuneS())) {
+                comuni += c.getNome();
+                break;
+            }
+            comuni += c.getNome() + " \u2192 ";
+        }
+        return comuni;
+    }
+
+    public boolean checkShortestPath () {
+        return percorsoBreve.containsAll(percorso);
     }
 }

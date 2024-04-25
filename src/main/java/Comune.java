@@ -6,7 +6,6 @@ public class Comune {
     private String nome = "";
     private int id = 0;
     private Set<Comune> neighbours = new HashSet<>();
-//    private List<String> neighboursName = new ArrayList<>();
 
     public Comune(String nome) {
         this.nome = nome;
@@ -15,12 +14,7 @@ public class Comune {
 
     public void addNeighbours(Comune ...comuni) {
         this.neighbours.addAll(Arrays.asList(comuni));
-//        this.neighboursName.addAll(Arrays.asList(comuni));
     }
-
-//    public List<String> getNeighboursName() {
-//        return neighboursName;
-//    }
 
     public String getNome() {
         return nome;
