@@ -17,6 +17,7 @@ public class Main {
     public static void main(String[] args)  {
         Provincia provincia = new Provincia();
         View vista = new View("Trevol Verona", provincia.getS(), provincia.getD(), provincia.getShortestpath().size()-2);
+//        PrimaView primaView = new PrimaView(provincia.getComuni());
         Controller controller = new Controller(vista, provincia.getComuni(), provincia.getScelte());
     }
 }

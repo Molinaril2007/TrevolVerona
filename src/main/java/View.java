@@ -5,7 +5,7 @@ import org.apache.batik.swing.JSVGCanvas;
 public class View extends JFrame {
     private JFrame finestra;
     private JPanel pannelloInput, pannelloMappa, pannelloNomi, pannelloElencoComuni, pannelloTentativi;
-    private JButton pulsanteInvia, btnProva;
+    private JButton pulsanteInvia;
     private JTextField inserisciComuni;
     private String comuneInserito;
     private JLabel etichetta, mappaTesto, lblMaxGuess, source, destination;
@@ -34,7 +34,7 @@ public class View extends JFrame {
         destination = new JLabel(comuneD.getNome().toUpperCase());
         destination.setForeground(new Color(255, 242, 0));
         canvas = new JSVGCanvas();
-        btnProva = new JButton("prova");
+
 
         if (min <= 3)
             guess = min + 4;
@@ -56,7 +56,6 @@ public class View extends JFrame {
         pannelloInput.add(etichetta);
         pannelloInput.add(inserisciComuni);
         pannelloInput.add(pulsanteInvia);
-        pannelloInput.add(btnProva);
 
 
         pannelloElencoComuni = new JPanel();
@@ -101,15 +100,6 @@ public class View extends JFrame {
             else
                 this.pannelloElencoComuni.add(new JLabel(""));
         }
-    }
-
-
-    public JButton getBtnProva() {
-        return btnProva;
-    }
-
-    public void setBtnProva(JButton btnProva) {
-        this.btnProva = btnProva;
     }
 
     public Comune getComuneS() {
