@@ -1,5 +1,5 @@
 import org.apache.batik.swing.JSVGCanvas;
-import org.apache.commons.io.output.AppendableOutputStream;
+import sun.swing.UIAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,10 +12,10 @@ import java.util.List;
 import java.io.*;
 
 
-
 public class Controller {
     //Attributi
     private View vista;
+    private PrimaView primaView;
     List<String> comuniSVG = new ArrayList<>();
     List<String> nomiInseriti = new ArrayList<>();
     Set<Comune> percorso = new HashSet<>();
@@ -25,8 +25,9 @@ public class Controller {
 
 
     //Costruttore
-    public Controller(View vista, List<Comune> comuni, List<Comune> scelte) {
+    public Controller(View vista, PrimaView primaView, List<Comune> comuni, List<Comune> scelte) {
         this.vista = vista;
+        this.primaView = primaView;
         Controller.comuni = comuni;
 
         percorsoBreve.addAll(scelte);
@@ -38,6 +39,21 @@ public class Controller {
 
         vista.getPulsanteInvia().addActionListener(e-> invia(comuni, scelte));
         vista.getInserisciComuni().addActionListener(e -> invia(comuni, scelte));
+
+        primaView.getBtnFacile().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (primaView.getBtnFacile().isSelected()){
+                    primaView.setChosenFacile(!primaView.isChosenFacile());
+                    primaView.getBtnFacile().setText(""+primaView.isChosenFacile());
+                    System.out.println(primaView.isChosenFacile());
+                } else {
+                    primaView.setChosenFacile(!primaView.isChosenFacile());
+                    primaView.getBtnFacile().setText(""+primaView.isChosenFacile());
+                    System.out.println(primaView.isChosenFacile());
+                }
+            }
+        });
     }
 
     //Metodi vari ed eventuali
@@ -142,7 +158,7 @@ public class Controller {
 
         }
     }
-    public static void createNewSVGFile(String desiredId, List<String> comuniSVG, String source, String destination) {
+    public void createNewSVGFile(String desiredId, List<String> comuniSVG, String source, String destination) {
         try (BufferedReader reader = new BufferedReader(new FileReader(".\\src\\main\\java\\img\\mappa.svg"));
              BufferedWriter writer = new BufferedWriter(new FileWriter(".\\src\\main\\java\\img\\mappaNuova.svg"))) {
             String line;
@@ -154,20 +170,11 @@ public class Controller {
             boolean writeNextLines = false;
             int linesToWrite = 0;
             while ((line = reader.readLine()) != null) {
-                //--------------------------------------------------------------------------------------------
-                //Codice per creare la griglia della mappa di comuni per creare la modalità facile
-                /*
-                for (Comune c : comuni) {
-                    if (line.contains(c.getNome().toLowerCase())) {
-                        String temp = line;
-                        temp = temp.replace(c.getNome().toLowerCase(), c.getNome().toLowerCase() + "Contorno");
-                        temp = temp.replace("rgb(97.254902%,76.470588%,0%)", "");
-                        temp = temp.replace("fill-opacity:1;", "fill-opacity:0;");
-                        writer.write(temp + "\n");
-                    }
-                }
-                */
-                //--------------------------------------------------------------------------------------------
+
+                if (primaView.isChosenFacile())
+                    contornoMappa(line, writer);
+
+
                 if (line.contains("<path id=\"" + source.toLowerCase())) {
                     line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(163, 73, 164)");
                     writer.write(line + "\n");
@@ -274,5 +281,22 @@ public class Controller {
 
     public boolean checkShortestPath () {
         return percorsoBreve.containsAll(percorso);
+    }
+
+    public void contornoMappa (String line, Writer writer) throws IOException {
+        //--------------------------------------------------------------------------------------------
+        //Codice per creare la griglia della mappa di comuni per creare la modalità facile
+
+        for (Comune c : comuni) {
+            if (line.contains(c.getNome().toLowerCase())) {
+                String temp = line;
+                temp = temp.replace(c.getNome().toLowerCase(), c.getNome().toLowerCase() + "Contorno");
+                temp = temp.replace("rgb(97.254902%,76.470588%,0%)", "");
+                temp = temp.replace("fill-opacity:1;", "fill-opacity:0;");
+                writer.write(temp + "\n");
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------
     }
 }

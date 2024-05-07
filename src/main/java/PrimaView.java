@@ -1,25 +1,23 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 public class PrimaView {
     private JFrame finestra;
     private JButton btnOkay;
     private JLabel lblFacile, lblCustom, lblRemove, lblInizio, lblFine, lblTitolo;
     private JToggleButton btnFacile, btnCustom, btnRemove;
-    private JComboBox<Comune> comboBoxInizio, comboBoxFine;
+    private JComboBox<String> comboBoxInizio, comboBoxFine;
     private JPanel pnlFacile, pnlCustom, pnlRemove, pnlTotal, pnlComuneInzio, pnlComuneFine, pnlSceltaComuni;
+    private boolean chosenCustom, chosenFacile, chosenRemove;
 
     public PrimaView(List<Comune> comuni) {
-        Comune [] tempInizio = new Comune[comuni.size()];
+        String [] tempInizio = new String[comuni.size()];
         for (int i = 0; i < comuni.size(); i++)
-            tempInizio[i] = comuni.get(i);
-        Comune [] tempFine = new Comune[comuni.size()];
+            tempInizio[i] = comuni.get(i).getNome();
+        String [] tempFine = new String[comuni.size()];
         for (int i = 0; i < comuni.size(); i++) {
-            tempFine[i] = comuni.get(i);
+            tempFine[i] = comuni.get(i).getNome();
         }
         finestra = new JFrame();
         btnOkay = new JButton("GIOCHIAMO!");
@@ -29,9 +27,9 @@ public class PrimaView {
         lblRemove = new JLabel("Seleziona per la modalità senza Verona");
         lblInizio = new JLabel("Seleziona il comune di inizio");
         lblFine = new JLabel("Seleziona il comune di fine");
-        btnFacile = new JToggleButton();
-        btnCustom = new JToggleButton();
-        btnRemove = new JToggleButton();
+        btnFacile = new JToggleButton(""+chosenFacile);
+        btnCustom = new JToggleButton(""+chosenCustom);
+        btnRemove = new JToggleButton(""+chosenRemove);
         comboBoxInizio = new JComboBox<>(tempInizio);
         comboBoxFine = new JComboBox<>(tempFine);
         pnlCustom = new JPanel();
@@ -72,15 +70,33 @@ public class PrimaView {
         finestra.add(pnlTotal, BorderLayout.CENTER);
         finestra.add(btnOkay, BorderLayout.SOUTH);
 
-
-
-
-
-
-
         finestra.setSize(400, 200);
         finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         finestra.setVisible(true);
+    }
+
+    public boolean isChosenCustom() {
+        return chosenCustom;
+    }
+
+    public void setChosenCustom(boolean chosenCustom) {
+        this.chosenCustom = chosenCustom;
+    }
+
+    public boolean isChosenFacile() {
+        return chosenFacile;
+    }
+
+    public void setChosenFacile(boolean chosenFacile) {
+        this.chosenFacile = chosenFacile;
+    }
+
+    public boolean isChosenRemove() {
+        return chosenRemove;
+    }
+
+    public void setChosenRemove(boolean chosenRemove) {
+        this.chosenRemove = chosenRemove;
     }
 
     public JFrame getFinestra() {
@@ -163,19 +179,19 @@ public class PrimaView {
         this.btnRemove = btnRemove;
     }
 
-    public JComboBox<Comune> getComboBoxInizio() {
+    public JComboBox<String> getComboBoxInizio() {
         return comboBoxInizio;
     }
 
-    public void setComboBoxInizio(JComboBox<Comune> comboBoxInizio) {
+    public void setComboBoxInizio(JComboBox<String> comboBoxInizio) {
         this.comboBoxInizio = comboBoxInizio;
     }
 
-    public JComboBox<Comune> getComboBoxFine() {
+    public JComboBox<String> getComboBoxFine() {
         return comboBoxFine;
     }
 
-    public void setComboBoxFine(JComboBox<Comune> comboBoxFine) {
+    public void setComboBoxFine(JComboBox<String> comboBoxFine) {
         this.comboBoxFine = comboBoxFine;
     }
 }
