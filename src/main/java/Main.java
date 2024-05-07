@@ -1,5 +1,3 @@
-import java.util.*;
-
 /*
 IDEE PER IL TRAVLE:
 -dato che verona ha molti confini, fare una modalità per rimuovere Verona dalle scelte.
@@ -12,12 +10,11 @@ IDEE PER IL TRAVLE:
 -aggiungere un pannello sotto alla barra di testo con i possibili suggerimenti (nomi dei comuni). Vedi es ChatGPT
 */
 
-
 public class Main {
     public static void main(String[] args)  {
         Provincia provincia = new Provincia();
         View vista = new View("Trevol Verona", provincia.getS(), provincia.getD(), provincia.getShortestpath().size()-2);
-        PrimaView primaView = new PrimaView(provincia.getComuni());
-        Controller controller = new Controller(vista, primaView, provincia.getComuni(), provincia.getScelte());
+        PrimaView primaView = new PrimaView(provincia);
+        Controller controller = new Controller(vista, primaView, provincia);
     }
 }

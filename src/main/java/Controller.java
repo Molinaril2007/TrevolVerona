@@ -1,10 +1,7 @@
 import org.apache.batik.swing.JSVGCanvas;
-import sun.swing.UIAction;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.*;
@@ -16,48 +13,44 @@ public class Controller {
     //Attributi
     private View vista;
     private PrimaView primaView;
+    private Provincia provincia;
     List<String> comuniSVG = new ArrayList<>();
     List<String> nomiInseriti = new ArrayList<>();
     Set<Comune> percorso = new HashSet<>();
-    boolean primoAvvio = true, stato = false;
+    boolean primoAvvio = true;
     Set<Comune> percorsoBreve = new HashSet<>();
-    static List<Comune> comuni;
 
 
     //Costruttore
-    public Controller(View vista, PrimaView primaView, List<Comune> comuni, List<Comune> scelte) {
+    public Controller(View vista, PrimaView primaView, Provincia provincia) {
         this.vista = vista;
         this.primaView = primaView;
-        Controller.comuni = comuni;
+        this.provincia = provincia;
 
-        percorsoBreve.addAll(scelte);
+        percorsoBreve.addAll(provincia.getScelte());
 
         percorsoBreve.remove(vista.getComuneS());
         percorsoBreve.remove(vista.getComuneD());
-        aggiornaMappa();
-        primoAvvio = false;
 
-        vista.getPulsanteInvia().addActionListener(e-> invia(comuni, scelte));
-        vista.getInserisciComuni().addActionListener(e -> invia(comuni, scelte));
+        vista.getPulsanteInvia().addActionListener(e-> invia());
+        vista.getInserisciComuni().addActionListener(e -> invia());
 
-        primaView.getBtnFacile().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (primaView.getBtnFacile().isSelected()){
-                    primaView.setChosenFacile(!primaView.isChosenFacile());
-                    primaView.getBtnFacile().setText(""+primaView.isChosenFacile());
-                    System.out.println(primaView.isChosenFacile());
-                } else {
-                    primaView.setChosenFacile(!primaView.isChosenFacile());
-                    primaView.getBtnFacile().setText(""+primaView.isChosenFacile());
-                    System.out.println(primaView.isChosenFacile());
-                }
-            }
+        primaView.getBtnFacile().addActionListener(e -> {
+            primaView.setChosenFacile(!primaView.isChosenFacile());
+            primaView.getBtnFacile().setText(primaView.nomeFacile(primaView.isChosenFacile()));
+            System.out.println(primaView.isChosenFacile());
+        });
+
+        primaView.getBtnOkay().addActionListener(e -> {
+            primaView.getFinestra().setVisible(false);
+            vista.setVisible(true);
+            aggiornaMappa();
+            primoAvvio = false;
         });
     }
 
     //Metodi vari ed eventuali
-    public void invia (List<Comune> comuni, List<Comune> scelte) {
+    public void invia () {
         int i = 1;
 
         JLabel lblNuovoComune = null;
@@ -72,17 +65,17 @@ public class Controller {
         } else if (vista.getDestination().getText().equals(comuneInserito)) {
             JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale alla destinazione ", "Errore", JOptionPane.ERROR_MESSAGE);
             vista.getInserisciComuni().setText("");
-        } else if (checkNome(comuni, comuneInserito)) {
-            aggiungiNome(comuni, comuneInserito);
+        } else if (checkNome(provincia.getComuni(), comuneInserito)) {
+            aggiungiNome(provincia.getComuni(), comuneInserito);
 
-            createNewSVGFile(comuneInserito.toLowerCase(), comuniSVG, vista.getSource().getText(), vista.getDestination().getText());
+            createNewSVGFile(comuneInserito.toLowerCase(), comuniSVG, provincia.getS().getNome(), provincia.getD().getNome());
             aggiornaMappa();
 
-            if (checkScelte(scelte, comuneInserito)) {
+            if (checkScelte(provincia.getScelte(), comuneInserito)) {
                 lblNuovoComune = new JLabel(comuneInserito.toUpperCase() + " \u263A");
                 lblNuovoComune.setForeground(Color.GREEN);
                 vista.inserimenti[i] = lblNuovoComune;
-            } else if (checkConfini(scelte, comuneInserito)) {
+            } else if (checkConfini(provincia.getScelte(), comuneInserito)) {
                 lblNuovoComune = new JLabel(comuneInserito.toUpperCase());
                 lblNuovoComune.setForeground(Color.ORANGE);
                 vista.inserimenti[i] = lblNuovoComune;
@@ -103,7 +96,7 @@ public class Controller {
                 else {
                     String tentativo = percorsoBreve.size() == 1 ? "tentativo" : "tentativi";
                     JOptionPane.showMessageDialog(null, "Sei andato da " + vista.getComuneS().getNome() + " a " + vista.getComuneD().getNome() + " con " + percorso.size() +" " + tentativo +
-                            "\nIl percorso più corto era: " + printCollection(scelte) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + tentativo);
+                            "\nIl percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + tentativo);
 
                 }
                 int scelta = JOptionPane.showConfirmDialog(null, "Vuoi fare un altra partita?");
@@ -137,7 +130,7 @@ public class Controller {
     }
     public void aggiornaMappa () {
         if (primoAvvio) {
-            createNewSVGFile(null, comuniSVG, vista.getSource().getText(), vista.getDestination().getText());
+            createNewSVGFile(null, comuniSVG, provincia.getS().getNome(), provincia.getD().getNome());
         }
         vista.setCanvas(null);
         vista.getPannelloMappa().removeAll();
@@ -200,7 +193,7 @@ public class Controller {
                 }
             }
             String string;
-            for (Comune c : comuni) {
+            for (Comune c : provincia.getComuni()) {
                 while ((string = reader.readLine()) != null) {
                     if (string.contains("<path id=\" " + c.getNome().toLowerCase())) {
                         String temp = string;
@@ -287,7 +280,7 @@ public class Controller {
         //--------------------------------------------------------------------------------------------
         //Codice per creare la griglia della mappa di comuni per creare la modalità facile
 
-        for (Comune c : comuni) {
+        for (Comune c : provincia.getComuni()) {
             if (line.contains(c.getNome().toLowerCase())) {
                 String temp = line;
                 temp = temp.replace(c.getNome().toLowerCase(), c.getNome().toLowerCase() + "Contorno");

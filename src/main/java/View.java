@@ -89,7 +89,7 @@ public class View extends JFrame {
         setSize(800, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
+        setVisible(false);
         setIconImage(icona.getImage());
     }
 

@@ -11,13 +11,13 @@ public class PrimaView {
     private JPanel pnlFacile, pnlCustom, pnlRemove, pnlTotal, pnlComuneInzio, pnlComuneFine, pnlSceltaComuni;
     private boolean chosenCustom, chosenFacile, chosenRemove;
 
-    public PrimaView(List<Comune> comuni) {
-        String [] tempInizio = new String[comuni.size()];
-        for (int i = 0; i < comuni.size(); i++)
-            tempInizio[i] = comuni.get(i).getNome();
-        String [] tempFine = new String[comuni.size()];
-        for (int i = 0; i < comuni.size(); i++) {
-            tempFine[i] = comuni.get(i).getNome();
+    public PrimaView(Provincia provincia) {
+        String [] tempInizio = new String[provincia.getComuni().size()];
+        for (int i = 0; i < provincia.getComuni().size(); i++)
+            tempInizio[i] = provincia.getComuni().get(i).getNome();
+        String [] tempFine = new String[provincia.getComuni().size()];
+        for (int i = 0; i < provincia.getComuni().size(); i++) {
+            tempFine[i] = provincia.getComuni().get(i).getNome();
         }
         finestra = new JFrame();
         btnOkay = new JButton("GIOCHIAMO!");
@@ -27,9 +27,9 @@ public class PrimaView {
         lblRemove = new JLabel("Seleziona per la modalità senza Verona");
         lblInizio = new JLabel("Seleziona il comune di inizio");
         lblFine = new JLabel("Seleziona il comune di fine");
-        btnFacile = new JToggleButton(""+chosenFacile);
-        btnCustom = new JToggleButton(""+chosenCustom);
-        btnRemove = new JToggleButton(""+chosenRemove);
+        btnFacile = new JToggleButton(nomeFacile(chosenFacile));
+        btnCustom = new JToggleButton(nomeCustom(chosenCustom));
+        btnRemove = new JToggleButton(nomeRemove(chosenRemove));
         comboBoxInizio = new JComboBox<>(tempInizio);
         comboBoxFine = new JComboBox<>(tempFine);
         pnlCustom = new JPanel();
@@ -70,9 +70,44 @@ public class PrimaView {
         finestra.add(pnlTotal, BorderLayout.CENTER);
         finestra.add(btnOkay, BorderLayout.SOUTH);
 
+        /*
+        GroupLayout groupLayout = new GroupLayout(finestra.getContentPane());
+        groupLayout.setAutoCreateGaps(true);
+
+        groupLayout.setHorizontalGroup(groupLayout.createSequentialGroup().addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addComponent(lblRemove)
+                        .addComponent(lblFacile)
+                        .addComponent(lblCustom)
+                        .addComponent(lblInizio)
+                        .addComponent(lblFine))
+                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addComponent(btnRemove)
+                        .addComponent(btnFacile)
+                        .addComponent(btnCustom)
+                ));
+
+
+        finestra.setLayout(groupLayout);
+        */
         finestra.setSize(400, 200);
+        finestra.setLocationRelativeTo(null);
         finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         finestra.setVisible(true);
+    }
+
+    public String nomeFacile (boolean chosenFacile) {
+        String stringChosenFacile;
+        return stringChosenFacile = chosenFacile ? "Attivato": "Disattivato";
+    }
+
+    public String nomeCustom (boolean chosenCustom) {
+        String stringChosenCustom;
+        return stringChosenCustom = chosenCustom ? "Attivato" : "Disattivato";
+    }
+
+    public String nomeRemove (boolean chosenRemove) {
+        String stringChosenRemove;
+        return stringChosenRemove = chosenRemove ? "Attivato" : "Disattivato";
     }
 
     public boolean isChosenCustom() {
