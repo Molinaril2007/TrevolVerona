@@ -13,7 +13,7 @@ IDEE PER IL TRAVLE:
 public class Main {
     public static void main(String[] args)  {
         Provincia provincia = new Provincia();
-        View vista = new View("Trevol Verona", provincia.getS(), provincia.getD(), provincia.getShortestpath().size()-2);
+        View vista = new View("Trevol Verona");
         PrimaView primaView = new PrimaView(provincia);
         Controller controller = new Controller(vista, primaView, provincia);
     }

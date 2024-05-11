@@ -2,112 +2,115 @@ import java.util.*;
 
 public class Provincia {
     ArrayList<Comune> comuni = new ArrayList<>();
+    int V;
+    List<List<Integer>> graph;
     Random rnd = new Random();
     Map<Integer, Comune> nomiComuni = new HashMap<>();
     ArrayList<Comune> scelte = new ArrayList<>();
     Comune S = null;
     Comune D = null;
     List<Integer> shortestpath;
-    public Provincia() {
-        Comune affi = new Comune("Affi");
-        Comune albaredoDAdige = new Comune("Albaredo d'Adige");
-        Comune angiari = new Comune("Angiari");
-        Comune arcole = new Comune("Arcole");
-        Comune badiaCalavena = new Comune("Badia Calavena");
-        Comune bardolino = new Comune("Bardolino");
-        Comune belfiore = new Comune("Belfiore");
-        Comune bevilacqua = new Comune("Bevilacqua");
-        Comune bonavigo = new Comune("Bonavigo");
-        Comune boschiSantAnna = new Comune("Boschi Sant'Anna");
-        Comune boscoChiesanuova = new Comune("Bosco Chiesanuova");
-        Comune bovolone = new Comune("Bovolone");
-        Comune brentinoBelluno = new Comune("Brentino Belluno");
-        Comune brenzoneSulGarda = new Comune("Brenzone sul Garda");
-        Comune bussolengo = new Comune("Bussolengo");
-        Comune buttapietra = new Comune("Buttapietra");
-        Comune caldiero = new Comune("Caldiero");
-        Comune caprinoVeronese = new Comune("Caprino Veronese");
-        Comune casaleone = new Comune("Casaleone");
-        Comune castagnaro = new Comune("Castagnaro");
-        Comune castelDAzzano = new Comune("Castel D'Azzano");
-        Comune castelnuovoDelGarda = new Comune("Castelnuovo del Garda");
-        Comune cavaionVeronese = new Comune("Cavaion Veronese");
-        Comune cazzanoDiTramigna = new Comune("Cazzano di Tramigna");
-        Comune cerea = new Comune("Cerea");
-        Comune cerroVeronese = new Comune("Cerro Veronese");
-        Comune colognaVeneta = new Comune("Cologna Veneta");
-        Comune colognolaAiColli = new Comune("Colognola ai Colli");
-        Comune concamarise = new Comune("Concamarise");
-        Comune costermanoSulGarda = new Comune("Costermano sul Garda");
-        Comune dolce = new Comune("Dolc\u00e8");
-        Comune erbe = new Comune("Erb\u00e8");
-        Comune erbezzo = new Comune("Erbezzo");
-        Comune ferraraDiMonteBaldo = new Comune("Ferrara di Monte Baldo");
-        Comune fumane = new Comune("Fumane");
-        Comune garda = new Comune("Garda");
-        Comune gazzoVeronese = new Comune("Gazzo Veronese");
-        Comune grezzana = new Comune("Grezzana");
-        Comune illasi = new Comune("Illasi");
-        Comune isolaDellaScala = new Comune("Isola della Scala");
-        Comune isolaRizza = new Comune("Isola Rizza");
-        Comune lavagno = new Comune("Lavagno");
-        Comune lazise = new Comune("Lazise");
-        Comune legnago = new Comune("Legnago");
-        Comune malcesine = new Comune("Malcesine");
-        Comune maranoDiValpolicella = new Comune("Marano di Valpolicella");
-        Comune mezzaneDiSotto = new Comune("Mezzane di Sotto");
-        Comune minerbe = new Comune("Minerbe");
-        Comune montecchiaDiCrosara = new Comune("Montecchia di Crosara");
-        Comune monteforteDAlpone = new Comune("Monteforte d'Alpone");
-        Comune mozzecane = new Comune("Mozzecane");
-        Comune negrarDiValpolicella = new Comune("Negrar di Valpolicella");
-        Comune nogara = new Comune("Nogara");
-        Comune nogaroleRocca = new Comune("Nogarole Rocca");
-        Comune oppeano = new Comune("Oppeano");
-        Comune palu = new Comune("Pal\u00f9");
-        Comune pastrengo = new Comune("Pastrengo");
-        Comune pescantina = new Comune("Pescantina");
-        Comune peschieraDelGarda = new Comune("Peschiera del Garda");
-        Comune poveglianoVeronese = new Comune("Povegliano Veronese");
-        Comune pressana = new Comune("Pressana");
-        Comune rivoliVeronese = new Comune("Rivoli Veronese");
-        Comune ronca = new Comune("Ronc\u00e0");
-        Comune roncoAllAdige = new Comune("Ronco all'Adige");
-        Comune roverchiara = new Comune("Roverchiara");
-        Comune rovereVeronese = new Comune("Rover\u00e8 Veronese");
-        Comune roveredoDiGua = new Comune("Roveredo di Gu\u00e0");
-        Comune salizzole = new Comune("Salizzole");
-        Comune sanBonifacio = new Comune("San Bonifacio");
-        Comune sanGiovanniIlarione = new Comune("San Giovanni Ilarione");
-        Comune sanGiovanniLupatoto = new Comune("San Giovanni Lupatoto");
-        Comune sanMartinoBuonAlbergo = new Comune("San Martino Buon Albergo");
-        Comune sanMauroDiSaline = new Comune("San Mauro di Saline");
-        Comune sanPietroDiMorubio = new Comune("San Pietro di Morubio");
-        Comune sanPietroInCariano = new Comune("San Pietro in Cariano");
-        Comune sanZenoDiMontagna = new Comune("San Zeno di Montagna");
-        Comune sanguinetto = new Comune("Sanguinetto");
-        Comune santAmbrogioDiValpolicella = new Comune("Sant'Ambrogio di Valpolicella");
-        Comune santAnnaDAlfaedo = new Comune("Sant'Anna d'Alfaedo");
-        Comune selvaDiProgno = new Comune("Selva di Progno");
-        Comune soave = new Comune("Soave");
-        Comune sommacampagna = new Comune("Sommacampagna");
-        Comune sona = new Comune("Sona");
-        Comune sorga = new Comune("Sorg\u00e0");
-        Comune terrazzo = new Comune("Terrazzo");
-        Comune torriDelBenaco = new Comune("Torri del Benaco");
-        Comune tregnago = new Comune("Tregnago");
-        Comune trevenzuolo = new Comune("Trevenzuolo");
-        Comune valeggioSulMincio = new Comune("Valeggio sul Mincio");
-        Comune veloVeronese = new Comune("Velo Veronese");
-        Comune verona = new Comune("Verona");
-        Comune veronella = new Comune("Veronella");
-        Comune vestenanova = new Comune("Vestenanova");
-        Comune vigasio = new Comune("Vigasio");
-        Comune villaBartolomea = new Comune("Villa Bartolomea");
-        Comune villafranca = new Comune("Villafranca di Verona");
-        Comune zevio = new Comune("Zevio");
-        Comune zimella = new Comune("Zimella");
+    Comune affi, albaredoDAdige, angiari, arcole, badiaCalavena, bardolino, belfiore, bevilacqua, bonavigo, boschiSantAnna, boscoChiesanuova, bovolone, brentinoBelluno, brenzoneSulGarda, bussolengo, buttapietra, caldiero, caprinoVeronese, casaleone, castagnaro, castelDAzzano, castelnuovoDelGarda, cavaionVeronese, cazzanoDiTramigna, cerea, cerroVeronese, colognaVeneta, colognolaAiColli, concamarise, costermanoSulGarda, dolce, erbe, erbezzo, ferraraDiMonteBaldo, fumane, garda, gazzoVeronese, grezzana, illasi, isolaDellaScala, isolaRizza, lavagno, lazise, legnago, malcesine, maranoDiValpolicella, mezzaneDiSotto, minerbe, montecchiaDiCrosara, monteforteDAlpone, mozzecane, negrarDiValpolicella, nogara, nogaroleRocca, oppeano, palu, pastrengo, pescantina, peschieraDelGarda, poveglianoVeronese, pressana, rivoliVeronese, ronca, roncoAllAdige, roverchiara, rovereVeronese, roveredoDiGua, salizzole, sanBonifacio, sanGiovanniIlarione, sanGiovanniLupatoto, sanMartinoBuonAlbergo, sanMauroDiSaline, sanPietroDiMorubio, sanPietroInCariano, sanZenoDiMontagna, sanguinetto, santAmbrogioDiValpolicella, santAnnaDAlfaedo, selvaDiProgno, soave, sommacampagna, sona, sorga, terrazzo, torriDelBenaco, tregnago, trevenzuolo, valeggioSulMincio, veloVeronese, verona, veronella, vestenanova, vigasio, villaBartolomea, villafranca, zevio, zimella;
 
+    public Provincia() {
+        affi = new Comune("Affi");
+        albaredoDAdige = new Comune("Albaredo d'Adige");
+        angiari = new Comune("Angiari");
+        arcole = new Comune("Arcole");
+        badiaCalavena = new Comune("Badia Calavena");
+        bardolino = new Comune("Bardolino");
+        belfiore = new Comune("Belfiore");
+        bevilacqua = new Comune("Bevilacqua");
+        bonavigo = new Comune("Bonavigo");
+        boschiSantAnna = new Comune("Boschi Sant'Anna");
+        boscoChiesanuova = new Comune("Bosco Chiesanuova");
+        bovolone = new Comune("Bovolone");
+        brentinoBelluno = new Comune("Brentino Belluno");
+        brenzoneSulGarda = new Comune("Brenzone sul Garda");
+        bussolengo = new Comune("Bussolengo");
+        buttapietra = new Comune("Buttapietra");
+        caldiero = new Comune("Caldiero");
+        caprinoVeronese = new Comune("Caprino Veronese");
+        casaleone = new Comune("Casaleone");
+        castagnaro = new Comune("Castagnaro");
+        castelDAzzano = new Comune("Castel D'Azzano");
+        castelnuovoDelGarda = new Comune("Castelnuovo del Garda");
+        cavaionVeronese = new Comune("Cavaion Veronese");
+        cazzanoDiTramigna = new Comune("Cazzano di Tramigna");
+        cerea = new Comune("Cerea");
+        cerroVeronese = new Comune("Cerro Veronese");
+        colognaVeneta = new Comune("Cologna Veneta");
+        colognolaAiColli = new Comune("Colognola ai Colli");
+        concamarise = new Comune("Concamarise");
+        costermanoSulGarda = new Comune("Costermano sul Garda");
+        dolce = new Comune("Dolcè");
+        erbe = new Comune("Erbè");
+        erbezzo = new Comune("Erbezzo");
+        ferraraDiMonteBaldo = new Comune("Ferrara di Monte Baldo");
+        fumane = new Comune("Fumane");
+        garda = new Comune("Garda");
+        gazzoVeronese = new Comune("Gazzo Veronese");
+        grezzana = new Comune("Grezzana");
+        illasi = new Comune("Illasi");
+        isolaDellaScala = new Comune("Isola della Scala");
+        isolaRizza = new Comune("Isola Rizza");
+        lavagno = new Comune("Lavagno");
+        lazise = new Comune("Lazise");
+        legnago = new Comune("Legnago");
+        malcesine = new Comune("Malcesine");
+        maranoDiValpolicella = new Comune("Marano di Valpolicella");
+        mezzaneDiSotto = new Comune("Mezzane di Sotto");
+        minerbe = new Comune("Minerbe");
+        montecchiaDiCrosara = new Comune("Montecchia di Crosara");
+        monteforteDAlpone = new Comune("Monteforte d'Alpone");
+        mozzecane = new Comune("Mozzecane");
+        negrarDiValpolicella = new Comune("Negrar di Valpolicella");
+        nogara = new Comune("Nogara");
+        nogaroleRocca = new Comune("Nogarole Rocca");
+        oppeano = new Comune("Oppeano");
+        palu = new Comune("Palù");
+        pastrengo = new Comune("Pastrengo");
+        pescantina = new Comune("Pescantina");
+        peschieraDelGarda = new Comune("Peschiera del Garda");
+        poveglianoVeronese = new Comune("Povegliano Veronese");
+        pressana = new Comune("Pressana");
+        rivoliVeronese = new Comune("Rivoli Veronese");
+        ronca = new Comune("Roncà");
+        roncoAllAdige = new Comune("Ronco all'Adige");
+        roverchiara = new Comune("Roverchiara");
+        rovereVeronese = new Comune("Roverè Veronese");
+        roveredoDiGua = new Comune("Roveredo di Guà");
+        salizzole = new Comune("Salizzole");
+        sanBonifacio = new Comune("San Bonifacio");
+        sanGiovanniIlarione = new Comune("San Giovanni Ilarione");
+        sanGiovanniLupatoto = new Comune("San Giovanni Lupatoto");
+        sanMartinoBuonAlbergo = new Comune("San Martino Buon Albergo");
+        sanMauroDiSaline = new Comune("San Mauro di Saline");
+        sanPietroDiMorubio = new Comune("San Pietro di Morubio");
+        sanPietroInCariano = new Comune("San Pietro in Cariano");
+        sanZenoDiMontagna = new Comune("San Zeno di Montagna");
+        sanguinetto = new Comune("Sanguinetto");
+        santAmbrogioDiValpolicella = new Comune("Sant'Ambrogio di Valpolicella");
+        santAnnaDAlfaedo = new Comune("Sant'Anna d'Alfaedo");
+        selvaDiProgno = new Comune("Selva di Progno");
+        soave = new Comune("Soave");
+        sommacampagna = new Comune("Sommacampagna");
+        sona = new Comune("Sona");
+        sorga = new Comune("Sorgà");
+        terrazzo = new Comune("Terrazzo");
+        torriDelBenaco = new Comune("Torri del Benaco");
+        tregnago = new Comune("Tregnago");
+        trevenzuolo = new Comune("Trevenzuolo");
+        valeggioSulMincio = new Comune("Valeggio sul Mincio");
+        veloVeronese = new Comune("Velo Veronese");
+        veronella = new Comune("Veronella");
+        vestenanova = new Comune("Vestenanova");
+        vigasio = new Comune("Vigasio");
+        villaBartolomea = new Comune("Villa Bartolomea");
+        villafranca = new Comune("Villafranca");
+        zevio = new Comune("Zevio");
+        zimella = new Comune("Zimella");
+        verona = new Comune("Verona");
 
         comuni.add(affi);
         comuni.add(albaredoDAdige);
@@ -199,7 +202,6 @@ public class Provincia {
         comuni.add(trevenzuolo);
         comuni.add(valeggioSulMincio);
         comuni.add(veloVeronese);
-        comuni.add(verona);
         comuni.add(veronella);
         comuni.add(vestenanova);
         comuni.add(vigasio);
@@ -207,10 +209,11 @@ public class Provincia {
         comuni.add(villafranca);
         comuni.add(zevio);
         comuni.add(zimella);
+        comuni.add(verona);
 
-        int V = comuni.size();
+        V = comuni.size();
 
-        ArrayList<List<Integer>> graph = new ArrayList<>(V);
+        graph = new ArrayList<>(V);
 
         affi.addNeighbours(costermanoSulGarda, rivoliVeronese, cavaionVeronese, bardolino);
         albaredoDAdige.addNeighbours(veronella, roverchiara, bonavigo, roncoAllAdige, belfiore);
@@ -311,33 +314,19 @@ public class Provincia {
         zevio.addNeighbours(belfiore, caldiero, oppeano, palu, roncoAllAdige, sanGiovanniLupatoto, sanMartinoBuonAlbergo);
         zimella.addNeighbours(arcole, colognaVeneta, veronella);
 
-        do {
-            S = comuni.get(rnd.nextInt(comuni.size()));
-            D = comuni.get(rnd.nextInt(comuni.size()));
-        } while (S.equals(D) || S.getNeighbours().contains(D));
 
-        for (Comune c : comuni) {
-            graph.add(new ArrayList<>());
-        }
 
-        for (Comune c : comuni) {
-            ArrayList<Integer> neighbourIds = new ArrayList<>();
-            for (Comune n : c.getNeighbours()) {
-                neighbourIds.add(n.getId());
-            }
-            graph.set(c.getId(), neighbourIds);
-        }
+//        for (Comune c : comuni) {
+//            graph.add(new ArrayList<>());
+//        }
+
+
 
         for (Comune c : comuni) {
             nomiComuni.put(c.getId(), c);
         }
 
-        shortestpath = ShortestPathBFS.shortestDistance(graph, S.getId(), D.getId(), V);
-        for (Integer node : shortestpath) {
-            Comune c = nomiComuni.get(node);
-            scelte.add(c);
-            System.out.println(c.getNome());
-        }
+
     }
 
     //Metodi Getter
@@ -355,5 +344,61 @@ public class Provincia {
     }
     public List<Integer> getShortestpath() {
         return shortestpath;
+    }
+
+    public Random getRnd() {
+        return rnd;
+    }
+
+    public void setRnd(Random rnd) {
+        this.rnd = rnd;
+    }
+
+    public void setS(Comune s) {
+        S = s;
+    }
+
+    public void setD(Comune d) {
+        D = d;
+    }
+
+    public Comune getVerona() {
+        return verona;
+    }
+
+    public void setVerona(Comune verona) {
+        this.verona = verona;
+    }
+
+    public void setShortestpath(List<Integer> shortestpath) {
+        this.shortestpath = shortestpath;
+    }
+
+    public List<List<Integer>> getGraph() {
+        return graph;
+    }
+
+    public void setGraph(List<List<Integer>> graph) {
+        this.graph = graph;
+    }
+
+    public int getV() {
+        return V;
+    }
+
+    public void setV(int v) {
+        V = v;
+    }
+
+    public Map<Integer, Comune> getNomiComuni() {
+        return nomiComuni;
+    }
+
+    public void setNomiComuni(Map<Integer, Comune> nomiComuni) {
+        this.nomiComuni = nomiComuni;
+    }
+
+    public void setComuni(ArrayList<Comune> comuni) {
+        this.comuni = comuni;
     }
 }

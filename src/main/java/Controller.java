@@ -1,7 +1,11 @@
 import org.apache.batik.swing.JSVGCanvas;
 
+import javax.sound.sampled.Port;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.*;
@@ -19,6 +23,7 @@ public class Controller {
     Set<Comune> percorso = new HashSet<>();
     boolean primoAvvio = true;
     Set<Comune> percorsoBreve = new HashSet<>();
+    int max;
 
 
     //Costruttore
@@ -29,25 +34,146 @@ public class Controller {
 
         percorsoBreve.addAll(provincia.getScelte());
 
-        percorsoBreve.remove(vista.getComuneS());
-        percorsoBreve.remove(vista.getComuneD());
+        percorsoBreve.remove(provincia.getS());
+        percorsoBreve.remove(provincia.getD());
 
-        vista.getPulsanteInvia().addActionListener(e-> invia());
-        vista.getInserisciComuni().addActionListener(e -> invia());
+        primaView.getBtnInizioFine().addActionListener(e -> {
+            primaView.setChosenCustom(returnNegation(primaView.getBtnInizioFine()));
+            setNome(primaView.getBtnInizioFine());
+        });
+
+        primaView.getBtnSenzaVerona().addActionListener(e -> {
+            primaView.setChosenRemove(returnNegation(primaView.getBtnSenzaVerona()));
+            setNome(primaView.getBtnSenzaVerona());
+        });
 
         primaView.getBtnFacile().addActionListener(e -> {
-            primaView.setChosenFacile(!primaView.isChosenFacile());
-            primaView.getBtnFacile().setText(primaView.nomeFacile(primaView.isChosenFacile()));
-            System.out.println(primaView.isChosenFacile());
+            primaView.setChosenFacile(returnNegation(primaView.getBtnFacile()));
+            setNome(primaView.getBtnFacile());
         });
 
         primaView.getBtnOkay().addActionListener(e -> {
+            //Parte logica
+            //-------------------------------------------------------------
+            costruisciGrafo();
+            inizioFine();
+            shortestPath();
+            //-------------------------------------------------------------
+
+
+            //Parte grafica
+            //-------------------------------------------------------------
+            int min = provincia.getShortestpath().size() - 2;
+//            vista.setMin(min);
+            int guess;
+
+            if (min <= 3)
+                guess = min + 4;
+            else if (min <= 6)
+                guess = min + 5;
+            else if (min <= 9)
+                guess = min + 6;
+            else if (min <= 12)
+                guess = min + 7;
+            else
+                guess = min + 8;
+
+
+            vista.setGuess(guess);
+            max = vista.getGuess();
+            vista.initInserimenti();
+            vista.inserimenti[0] = new JLabel(provincia.getS().getNome().toUpperCase());
+            vista.inserimenti[0].setForeground(new Color(163, 73, 164));
+            vista.inserimenti[vista.inserimenti.length-1] = new JLabel(provincia.getD().getNome().toUpperCase());
+            vista.inserimenti[vista.inserimenti.length-1].setForeground(new Color(255, 242, 0));
+            vista.getPannelloElencoComuni().add(vista.inserimenti[0]);
+            vista.getPannelloElencoComuni().add(vista.inserimenti[vista.inserimenti.length-1]);
+            vista.getLblMaxGuess().setText("Tentativi massimi: " + guess);
+            vista.getLblMaxGuess().setFont(new Font("Arial", Font.BOLD, 18));
+            vista.getSource().setText(provincia.getS().getNome().toUpperCase());
+            vista.getDestination().setText(provincia.getD().getNome().toUpperCase());
+
             primaView.getFinestra().setVisible(false);
+
             vista.setVisible(true);
             aggiornaMappa();
             primoAvvio = false;
         });
+
+        vista.getPulsanteInvia().addActionListener(e-> invia());
+        vista.getInserisciComuni().addActionListener(e -> invia());
     }
+
+    void setNome (JToggleButton jToggleButton) {
+        primaView.getBtns(jToggleButton).setText(primaView.getStrings(jToggleButton, primaView.getBooleans(jToggleButton)));
+    }
+
+    boolean returnNegation (JToggleButton jToggleButton) {
+        return !primaView.getBooleans(jToggleButton);
+    }
+
+    void shortestPath () {
+        provincia.setShortestpath(ShortestPathBFS.shortestDistance(provincia.getGraph(), provincia.getS().getId(), provincia.getD().getId(), provincia.getV()));
+        for (Integer node : provincia.getShortestpath()) {
+            Comune c = provincia.getNomiComuni().get(node);
+            provincia.getScelte().add(c);
+            System.out.println(c.getNome());
+        }
+    }
+
+    void costruisciGrafo () {
+        ArrayList<Comune> paesi;
+        List<List<Integer>> temporaryGraph;
+        if (primaView.isChosenRemove()) {
+            provincia.getComuni().remove(provincia.getVerona().getId());
+            for (Comune c : provincia.getComuni()) {
+                c.getNeighbours().removeIf(comune -> comune.equals(provincia.getVerona()));
+            }
+            paesi = provincia.getComuni();
+            provincia.setComuni(paesi);
+        }
+        for (Comune c : provincia.getComuni()) {
+            System.out.println(c);
+        }
+        for (Comune c : provincia.getComuni()) {
+//            graph.add(new ArrayList<>());
+            ArrayList<Integer> neighbourIds = new ArrayList<>();
+            for (Comune n : c.getNeighbours()) {
+                neighbourIds.add(n.getId());
+            }
+            System.out.println("\nComune: " + c);
+            for (Integer i : neighbourIds) {
+                System.out.println(provincia.getNomiComuni().get(i));
+            }
+//            graph.set(c.getId(), neighbourIds);
+            provincia.getGraph().add(c.getId(), neighbourIds);
+            temporaryGraph = provincia.getGraph();
+            provincia.setGraph(temporaryGraph);
+        }
+    }
+
+    void inizioFine () {
+        if (!primaView.isChosenCustom()) {
+            do {
+                provincia.setS( provincia.getComuni().get(provincia.getRnd().nextInt(provincia.getComuni().size())));
+                provincia.setD( provincia.getComuni().get(provincia.getRnd().nextInt(provincia.getComuni().size())));
+            } while (provincia.getS().equals(provincia.getD()) || provincia.getS().getNeighbours().contains(provincia.getD()));
+        } else {
+            String inizio = ((String) primaView.getCmbComuneInizio().getSelectedItem());
+            String fine = ((String) primaView.getCmbComuneFine().getSelectedItem());
+            for (Comune c : provincia.getComuni()) {
+                if (c.getNome().equals(inizio)) {
+                    provincia.setS(c);
+                }
+                if (c.getNome().equals(fine)) {
+                    provincia.setD(c);
+                }
+            }
+        }
+        System.out.println(provincia.getS().getNome());
+        System.out.println(provincia.getD().getNome());
+    }
+
 
     //Metodi vari ed eventuali
     public void invia () {
@@ -92,10 +218,10 @@ public class Controller {
 
                 JOptionPane.showMessageDialog(null, "Complimenti, sei riuscito a collegare inizio e fine!", "HAI VINTO!", JOptionPane.INFORMATION_MESSAGE);
                 if (checkShortestPath())
-                    JOptionPane.showMessageDialog(null, "Sei andato da " + vista.getComuneS().getNome() + " a " + vista.getComuneD().getNome() + " con " + percorso.size() + " tentativi" + "\nLa soluzione più breve era in " + percorsoBreve.size() + " tentativi");
+                    JOptionPane.showMessageDialog(null, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " tentativi" + "\nLa soluzione più breve era in " + percorsoBreve.size() + " tentativi");
                 else {
                     String tentativo = percorsoBreve.size() == 1 ? "tentativo" : "tentativi";
-                    JOptionPane.showMessageDialog(null, "Sei andato da " + vista.getComuneS().getNome() + " a " + vista.getComuneD().getNome() + " con " + percorso.size() +" " + tentativo +
+                    JOptionPane.showMessageDialog(null, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() +" " + tentativo +
                             "\nIl percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + tentativo);
 
                 }
@@ -114,7 +240,7 @@ public class Controller {
                 vista.getPulsanteInvia().setEnabled(false);
             }
             vista.setGuess(vista.getGuess() - 1);
-            vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + vista.getPreGuess());
+            vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + max);
             vista.getInserisciComuni().setText("");
             if (vista.getGuess() <= 0) {
                 JOptionPane.showMessageDialog(null, "Non sei riuscito a collegare inizio e fine entro i tentativi", "Hai esaurito i tentativi!", JOptionPane.INFORMATION_MESSAGE);
@@ -166,6 +292,8 @@ public class Controller {
 
                 if (primaView.isChosenFacile())
                     contornoMappa(line, writer);
+
+
 
 
                 if (line.contains("<path id=\"" + source.toLowerCase())) {
@@ -243,8 +371,8 @@ public class Controller {
     public boolean checkVittorie() {
         Queue<Comune> q = new LinkedList<>();
         Set<Comune> visited = new HashSet<>();
-        q.add(vista.getComuneS());
-        Comune dest = vista.getComuneD();
+        q.add(provincia.getS());
+        Comune dest = provincia.getD();
         while (!q.isEmpty()) {
             Comune node = q.poll();
             visited.add(node);
@@ -263,7 +391,7 @@ public class Controller {
     public String printCollection (List<Comune> scelte) {
         String comuni = "";
         for (Comune c : scelte) {
-            if (c.equals(vista.getComuneS())) {
+            if (c.equals(provincia.getS())) {
                 comuni += c.getNome();
                 break;
             }

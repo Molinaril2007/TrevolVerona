@@ -15,12 +15,10 @@ public class View extends JFrame {
     private JSVGCanvas canvas;
     private Comune comuneS, comuneD;
 
+    int min;
 
-
-    public View(String titolo, Comune comuneS, Comune comuneD, int min) {
+    public View(String titolo) {
         super();
-        this.comuneD = comuneD;
-        this.comuneS = comuneS;
         pannelloMappa = new JPanel();
         pannelloInput = new JPanel();
         pannelloNomi = new JPanel();
@@ -29,13 +27,14 @@ public class View extends JFrame {
         inserisciComuni = new JTextField("", 30);
         pulsanteInvia = new JButton("Invia");
         comuneInserito = "";
-        source = new JLabel(comuneS.getNome().toUpperCase());
+        source = new JLabel();
         source.setForeground(new Color(163, 73, 164));
-        destination = new JLabel(comuneD.getNome().toUpperCase());
+        destination = new JLabel();
         destination.setForeground(new Color(255, 242, 0));
         canvas = new JSVGCanvas();
+        lblMaxGuess = new JLabel();
 
-
+/*
         if (min <= 3)
             guess = min + 4;
         else if (min <= 6)
@@ -47,10 +46,12 @@ public class View extends JFrame {
         else
             guess = min + 8;
 
-        inserimenti = new JLabel[guess];
-        preGuess = guess;
-        lblMaxGuess = new JLabel("Tentativi rimasti: " + guess);
-        lblMaxGuess.setFont(new Font("Arial", Font.BOLD, 18));
+
+ */
+
+
+//        lblMaxGuess = new JLabel("Tentativi massimi: " + guess);
+//        lblMaxGuess.setFont(new Font("Arial", Font.BOLD, 18));
 
         pannelloInput.setBackground(new Color(0, 0, 0, 0));
         pannelloInput.add(etichetta);
@@ -60,11 +61,9 @@ public class View extends JFrame {
 
         pannelloElencoComuni = new JPanel();
         pannelloElencoComuni.setLayout(new BoxLayout(pannelloElencoComuni, BoxLayout.Y_AXIS));
-        inserimenti[0] = source;
-        inserimenti[inserimenti.length-1] = destination;
 
-        pannelloElencoComuni.add(inserimenti[0]); // Aggiunge Source
-        pannelloElencoComuni.add(inserimenti[inserimenti.length-1]); //Aggiunge Destination
+//        pannelloElencoComuni.add(inserimenti[0]); // Aggiunge Source
+//        pannelloElencoComuni.add(inserimenti[inserimenti.length-1]); //Aggiunge Destination
 
 
         pannelloNomi.setLayout(new BorderLayout());
@@ -91,6 +90,10 @@ public class View extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(false);
         setIconImage(icona.getImage());
+    }
+
+    void initInserimenti () {
+        inserimenti = new JLabel[guess];
     }
 
     public void aggiornaComuni (JLabel[] inserimenti) {
@@ -221,5 +224,13 @@ public class View extends JFrame {
     }
     public void setPreGuess(int preGuess) {
         this.preGuess = preGuess;
+    }
+
+    public int getMin() {
+        return min;
+    }
+
+    public void setMin(int min) {
+        this.min = min;
     }
 }

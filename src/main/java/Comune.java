@@ -15,6 +15,10 @@ public class Comune {
     public void addNeighbours(Comune ...comuni) {
         this.neighbours.addAll(Arrays.asList(comuni));
     }
+    public void removeNeighbours (Comune comune) {
+        this.neighbours.remove(comune);
+    }
+
 
     public String getNome() {
         return nome;
