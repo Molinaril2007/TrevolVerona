@@ -1,11 +1,9 @@
 import org.apache.batik.swing.JSVGCanvas;
 
-import javax.sound.sampled.Port;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.*;
@@ -21,9 +19,10 @@ public class Controller {
     List<String> comuniSVG = new ArrayList<>();
     List<String> nomiInseriti = new ArrayList<>();
     Set<Comune> percorso = new HashSet<>();
-    boolean primoAvvio = true;
+    boolean primoAvvio = true, okayInizioFine;
     Set<Comune> percorsoBreve = new HashSet<>();
     int max;
+    String comuneSceltoInizio, comuneSceltoFine;
 
 
     //Costruttore
@@ -40,6 +39,33 @@ public class Controller {
         primaView.getBtnInizioFine().addActionListener(e -> {
             primaView.setChosenCustom(returnNegation(primaView.getBtnInizioFine()));
             setNome(primaView.getBtnInizioFine());
+            primaView.getCmbComuneInizio().setEnabled(primaView.getBooleans(primaView.getBtnInizioFine()));
+            System.out.println(primaView.getCmbComuneInizio().getSelectedItem().toString());
+        });
+
+        primaView.getCmbComuneInizio().addActionListener(e -> {
+            prendiInizio();
+            for (Comune c : provincia.getComuni()) {
+                if (c.getNome().equalsIgnoreCase(comuneSceltoInizio)) {
+                    provincia.setS(c);
+                    break;
+                }
+            }
+        });
+
+        primaView.getCmbComuneFine().addActionListener(e -> {
+            prendiFine();
+            for (Comune c : provincia.getComuni()) {
+                if (c.getNome().equalsIgnoreCase(comuneSceltoFine)) {
+                    provincia.setD(c);
+                    break;
+                }
+            }
+//            for (int i = 0; i < primaView.getCmbComuneFine().getItemCount(); i++) {
+//                if (primaView.getCmbComuneFine().getItemAt(i).equals(provincia.getComuni().get(i).getNome())) {
+//                    primaView.getCmbComuneFine().remove(i+1);
+//                }
+//            }
         });
 
         primaView.getBtnSenzaVerona().addActionListener(e -> {
@@ -52,11 +78,30 @@ public class Controller {
             setNome(primaView.getBtnFacile());
         });
 
+        primaView.getBtnDifficile().addActionListener(e -> {
+            primaView.setChosenDifficile(returnNegation(primaView.getBtnDifficile()));
+            setNome(primaView.getBtnDifficile());
+        });
+
         primaView.getBtnOkay().addActionListener(e -> {
+
             //Parte logica
             //-------------------------------------------------------------
             costruisciGrafo();
-            inizioFine();
+            if (primaView.getBooleans(primaView.getBtnInizioFine())) {
+                inizioFine();
+                if (provincia.getS().equals(provincia.getD()) || provincia.getS().getNeighbours().contains(provincia.getD())) {
+                    JOptionPane.showMessageDialog(null, "No buono");
+                }
+            } else
+                inizioFine();
+//            if (provincia.getS().equals(provincia.getD())) {
+//                JOptionPane.showMessageDialog(null, "Hai scelto lo stesso comune di inizio e di fine!");
+//                inizioFine();
+//            } else if (provincia.getS().getNeighbours().contains(provincia.getD())) {
+//                JOptionPane.showMessageDialog(null, "I comuni di inizio e di fine sono confinanti tra di loro");
+//                inizioFine();
+//            }
             shortestPath();
             //-------------------------------------------------------------
 
@@ -82,10 +127,18 @@ public class Controller {
             vista.setGuess(guess);
             max = vista.getGuess();
             vista.initInserimenti();
-            vista.inserimenti[0] = new JLabel(provincia.getS().getNome().toUpperCase());
-            vista.inserimenti[0].setForeground(new Color(163, 73, 164));
-            vista.inserimenti[vista.inserimenti.length-1] = new JLabel(provincia.getD().getNome().toUpperCase());
-            vista.inserimenti[vista.inserimenti.length-1].setForeground(new Color(255, 242, 0));
+            if (primaView.getBooleans(primaView.getBtnDifficile())) {
+                vista.inserimenti[0] = new JLabel("???");
+                vista.inserimenti[0].setForeground(new Color(163, 73, 164));
+                vista.inserimenti[vista.inserimenti.length-1] = new JLabel("???");
+                vista.inserimenti[vista.inserimenti.length-1].setForeground(new Color(255, 242, 0));
+            } else {
+                vista.inserimenti[0] = new JLabel(provincia.getS().getNome().toUpperCase());
+                vista.inserimenti[0].setForeground(new Color(163, 73, 164));
+                vista.inserimenti[vista.inserimenti.length-1] = new JLabel(provincia.getD().getNome().toUpperCase());
+                vista.inserimenti[vista.inserimenti.length-1].setForeground(new Color(255, 242, 0));
+            }
+
             vista.getPannelloElencoComuni().add(vista.inserimenti[0]);
             vista.getPannelloElencoComuni().add(vista.inserimenti[vista.inserimenti.length-1]);
             vista.getLblMaxGuess().setText("Tentativi massimi: " + guess);
@@ -104,6 +157,16 @@ public class Controller {
         vista.getInserisciComuni().addActionListener(e -> invia());
     }
 
+    void prendiInizio () {
+        comuneSceltoInizio = (String) primaView.getCmbComuneInizio().getSelectedItem();
+        System.out.println(comuneSceltoInizio);
+        primaView.getCmbComuneFine().setEnabled(!comuneSceltoInizio.equalsIgnoreCase("seleziona il comune di inizio"));
+    }
+
+    void prendiFine () {
+        comuneSceltoFine = (String) primaView.getCmbComuneFine().getSelectedItem();
+        System.out.println(comuneSceltoFine);
+    }
     void setNome (JToggleButton jToggleButton) {
         primaView.getBtns(jToggleButton).setText(primaView.getStrings(jToggleButton, primaView.getBooleans(jToggleButton)));
     }
@@ -158,20 +221,34 @@ public class Controller {
                 provincia.setS( provincia.getComuni().get(provincia.getRnd().nextInt(provincia.getComuni().size())));
                 provincia.setD( provincia.getComuni().get(provincia.getRnd().nextInt(provincia.getComuni().size())));
             } while (provincia.getS().equals(provincia.getD()) || provincia.getS().getNeighbours().contains(provincia.getD()));
-        } else {
-            String inizio = ((String) primaView.getCmbComuneInizio().getSelectedItem());
-            String fine = ((String) primaView.getCmbComuneFine().getSelectedItem());
-            for (Comune c : provincia.getComuni()) {
-                if (c.getNome().equals(inizio)) {
-                    provincia.setS(c);
-                }
-                if (c.getNome().equals(fine)) {
-                    provincia.setD(c);
-                }
-            }
+            okayInizioFine = true;
         }
-        System.out.println(provincia.getS().getNome());
-        System.out.println(provincia.getD().getNome());
+//        else {
+////            do {
+//                for (Comune c : provincia.getComuni()) {
+//                    if (c.getNome().equals(comuneSceltoInizio)) {
+//                        provincia.setS(c);
+//                    }
+//                    if (c.getNome().equals(comuneSceltoFine)) {
+//                        provincia.setD(c);
+//                    }
+//                }
+////            }while (provincia.getS().equals(provincia.getD()) || provincia.getS().getNeighbours().contains(provincia.getD()));
+//        }
+//        if (provincia.getS().equals(provincia.getD())) {
+//                JOptionPane.showMessageDialog(null, "Hai scelto lo stesso comune di inizio e di fine!");
+////                return false;
+//            } else if (provincia.getS().getNeighbours().contains(provincia.getD())) {
+//                JOptionPane.showMessageDialog(null, "I comuni di inizio e di fine sono confinanti tra di loro");
+////                return false;
+//            }
+        System.out.println(provincia.getS());
+        System.out.println(provincia.getD());
+//        return true;
+    }
+
+    void ricercaNome () {
+
     }
 
 
@@ -182,7 +259,9 @@ public class Controller {
         JLabel lblNuovoComune = null;
         String comuneInserito = vista.getInserisciComuni().getText().toUpperCase();
 
-        if (nomiInseriti.contains(comuneInserito)) {
+        if (comuneInserito == null || comuneInserito.length() <= 0) {
+            JOptionPane.showMessageDialog(null, "Non hai inserito nulla nella barra di ricerca");
+        } else if (nomiInseriti.contains(comuneInserito)) {
             JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale ad uno inserito precedentemente!", "Errore", JOptionPane.ERROR_MESSAGE);
             vista.getInserisciComuni().setText("");
         } else if (vista.getSource().getText().equals(comuneInserito)) {
@@ -249,7 +328,11 @@ public class Controller {
             }
 
         } else {
-            JOptionPane.showMessageDialog(null, comuneInserito + " non \u00E8 un comune", "Errore", JOptionPane.ERROR_MESSAGE);
+            if (primaView.isChosenRemove() && vista.getInserisciComuni().getText().equalsIgnoreCase("verona"))
+                JOptionPane.showMessageDialog(null, "Hai scelto la modalità senza Verona");
+            else {
+                JOptionPane.showMessageDialog(null, comuneInserito + " non \u00E8 un comune", "Errore", JOptionPane.ERROR_MESSAGE);
+            }
             vista.getInserisciComuni().setText("");
         }
 
@@ -419,5 +502,15 @@ public class Controller {
         }
 
         //--------------------------------------------------------------------------------------------
+    }
+
+    String suggerimenti (String nomeComune) {
+        if (nomeComune.equalsIgnoreCase("povegliano"))
+            return "Povegliano Veronese";
+        else if (nomeComune.equalsIgnoreCase("negrar")) {
+            return "Negrar di Valpolicella";
+        }
+        
+        return null;
     }
 }

@@ -13,15 +13,18 @@ public class PrimaView {
     private JLabel lblComuneInizio;
     private JLabel lblComuneFine;
     private JLabel lblRemove;
+    private JLabel lblDifficile;
     private JToggleButton btnFacile;
     private JToggleButton btnInizioFine;
     private JToggleButton btnSenzaVerona;
+    private JToggleButton btnDifficile;
     private JButton btnOkay;
     private JComboBox cmbComuneInizio;
     private JComboBox cmbComuneFine;
     private boolean chosenCustom = false;
     private boolean chosenFacile = false;
     private boolean chosenRemove = false;
+    private boolean chosenDifficile = false;
 
     public PrimaView(Provincia provincia) {
         finestra = new JFrame();
@@ -31,18 +34,22 @@ public class PrimaView {
         lblComuneInizio = new JLabel("Comune di inizio:");
         lblComuneFine = new JLabel("Comune di fine:");
         lblRemove = new JLabel("Clicca il pulsante per giocare senza Verona (difficile):");
+        lblDifficile = new JLabel("Clicca qui per la modalità difficile");
+        btnDifficile = new JToggleButton(nomeDiffficile(chosenDifficile));
         btnFacile = new JToggleButton(nomeFacile(chosenFacile));
         btnInizioFine = new JToggleButton(nomeCustom(chosenCustom));
         btnSenzaVerona = new JToggleButton(nomeRemove(chosenRemove));
         btnOkay = new JButton("OK!");
-        String[] comuniFine = new String[provincia.getComuni().size()];
-        for (int i = 0; i < comuniFine.length; i++) {
-            comuniFine[i] = provincia.getComuni().get(i).getNome();
+        String[] comuniFine = new String[provincia.getComuni().size()+1];
+        comuniFine[0] = "Seleziona il comune di fine";
+        for (int i = 0; i < comuniFine.length-1; i++) {
+            comuniFine[i+1] = provincia.getComuni().get(i).getNome();
         }
         cmbComuneFine = new JComboBox(comuniFine);
-        String[] comuniInizio = new String[provincia.getComuni().size()];
-        for (int i = 0; i < comuniInizio.length; i++) {
-            comuniInizio[i] = provincia.getComuni().get(i).getNome();
+        String[] comuniInizio = new String[provincia.getComuni().size()+1];
+        comuniInizio[0] = "Seleziona il comune di inizio";
+        for (int i = 0; i < comuniInizio.length-1; i++) {
+            comuniInizio[i+1] = provincia.getComuni().get(i).getNome();
         }
         cmbComuneInizio = new JComboBox(comuniInizio);
 
@@ -57,6 +64,8 @@ public class PrimaView {
         lblComuneInizio.setFont(new Font("SansSerif", Font.PLAIN, 26));
         lblComuneFine.setBounds(20, 340, 300, 30);
         lblComuneFine.setFont(new Font("SansSerif", Font.PLAIN, 26));
+        lblDifficile.setFont(new Font("SansSerif", Font.PLAIN, 26));
+        lblDifficile.setBounds(20, 495, 700, 30);
         lblRemove.setBounds(20, 430, 700, 30);
         lblRemove.setFont(new Font("SansSerif", Font.PLAIN, 26));
         btnFacile.setBounds(950, 125, 100, 40);
@@ -67,6 +76,8 @@ public class PrimaView {
         btnSenzaVerona.setFont(new Font("SansSerif", Font.PLAIN, 18));
         btnOkay.setBounds(500, 550, 100, 40);
         btnOkay.setFont(new Font("SansSerif", Font.PLAIN, 24));
+        btnDifficile.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        btnDifficile.setBounds(950, 495, 100, 40);
         cmbComuneInizio.setBounds(300, 275, 300, 40);
         cmbComuneInizio.setFont(new Font("SansSerif", Font.PLAIN, 18));
         cmbComuneFine.setBounds(300, 335, 300, 40);
@@ -85,8 +96,11 @@ public class PrimaView {
         finestra.add(btnOkay);
         finestra.add(cmbComuneInizio);
         finestra.add(cmbComuneFine);
+        finestra.add(lblDifficile);
+        finestra.add(btnDifficile);
 
-
+        cmbComuneFine.setEnabled(false);
+        cmbComuneInizio.setEnabled(false);
 
         //lblTitolo.setBounds();
         finestra.setSize(1100, 650);
@@ -134,6 +148,11 @@ public class PrimaView {
     public String nomeRemove (boolean chosenRemove) {
         String stringChosenRemove;
         return stringChosenRemove = chosenRemove ? "Attivato" : "Disattivato";
+    }
+
+    public String nomeDiffficile (boolean chosenDifficile) {
+        String stringChosenDifficile;
+        return stringChosenDifficile = chosenDifficile ? "Attivato" : "Disattivato";
     }
 
     public JFrame getFinestra() {
@@ -264,6 +283,30 @@ public class PrimaView {
         this.chosenRemove = chosenRemove;
     }
 
+    public JToggleButton getBtnDifficile() {
+        return btnDifficile;
+    }
+
+    public void setBtnDifficile(JToggleButton btnDifficile) {
+        this.btnDifficile = btnDifficile;
+    }
+
+    public boolean isChosenDifficile() {
+        return chosenDifficile;
+    }
+
+    public void setChosenDifficile(boolean chosenDifficile) {
+        this.chosenDifficile = chosenDifficile;
+    }
+
+    public JLabel getLblDifficile() {
+        return lblDifficile;
+    }
+
+    public void setLblDifficile(JLabel lblDifficile) {
+        this.lblDifficile = lblDifficile;
+    }
+
     public JToggleButton getBtns (JToggleButton jToggleButton) {
         if (jToggleButton.equals(btnSenzaVerona))
             return btnSenzaVerona;
@@ -271,6 +314,8 @@ public class PrimaView {
             return btnFacile;
         else if (jToggleButton.equals(btnInizioFine))
             return btnInizioFine;
+        else if (jToggleButton.equals(btnDifficile))
+            return btnDifficile;
 
         return null;
     }
@@ -281,7 +326,9 @@ public class PrimaView {
         else if (jToggleButton.equals(btnFacile))
             return chosenFacile;
         else if (jToggleButton.equals(btnInizioFine))
-            return chosenRemove;
+            return chosenCustom;
+        else if (jToggleButton.equals(btnDifficile))
+            return chosenDifficile;
 
         return false;
     }
@@ -293,6 +340,9 @@ public class PrimaView {
             return nomeFacile(state);
         else if (jToggleButton.equals(btnInizioFine))
             return nomeCustom(state);
+        else if (jToggleButton.equals(btnDifficile))
+            return nomeDiffficile(state);
+
 
         return null;
     }
