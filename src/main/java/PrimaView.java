@@ -1,9 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class PrimaView {
     private JFrame finestra;
@@ -28,13 +24,13 @@ public class PrimaView {
 
     public PrimaView(Provincia provincia) {
         finestra = new JFrame();
-        lblTitolo = new JLabel("Travle Verona");
-        lblFacile = new JLabel("Clicca il pulsante a destra per la modalita' facile");
+        lblTitolo = new JLabel("Trevol Verona");
+        lblFacile = new JLabel("Clicca il pulsante per la modalità facile");
         lblCustom = new JLabel("Clicca il pulsante per scegliere i comuni di inizio e di fine");
         lblComuneInizio = new JLabel("Comune di inizio:");
         lblComuneFine = new JLabel("Comune di fine:");
-        lblRemove = new JLabel("Clicca il pulsante per giocare senza Verona (difficile):");
-        lblDifficile = new JLabel("Clicca qui per la modalità difficile");
+        lblRemove = new JLabel("Clicca il pulsante per giocare senza Verona");
+        lblDifficile = new JLabel("Clicca il pulsante per la modalità difficile");
         btnDifficile = new JToggleButton(nomeDiffficile(chosenDifficile));
         btnFacile = new JToggleButton(nomeFacile(chosenFacile));
         btnInizioFine = new JToggleButton(nomeCustom(chosenCustom));

@@ -4,7 +4,6 @@ public class Provincia {
     ArrayList<Comune> comuni = new ArrayList<>();
     int V;
     List<List<Integer>> graph;
-    Random rnd = new Random();
     Map<Integer, Comune> nomiComuni = new HashMap<>();
     ArrayList<Comune> scelte = new ArrayList<>();
     Comune S = null;
@@ -314,19 +313,9 @@ public class Provincia {
         zevio.addNeighbours(belfiore, caldiero, oppeano, palu, roncoAllAdige, sanGiovanniLupatoto, sanMartinoBuonAlbergo);
         zimella.addNeighbours(arcole, colognaVeneta, veronella);
 
-
-
-//        for (Comune c : comuni) {
-//            graph.add(new ArrayList<>());
-//        }
-
-
-
         for (Comune c : comuni) {
             nomiComuni.put(c.getId(), c);
         }
-
-
     }
 
     //Metodi Getter
@@ -345,59 +334,39 @@ public class Provincia {
     public List<Integer> getShortestpath() {
         return shortestpath;
     }
-
-    public Random getRnd() {
-        return rnd;
-    }
-
-    public void setRnd(Random rnd) {
-        this.rnd = rnd;
-    }
-
     public void setS(Comune s) {
         S = s;
     }
-
     public void setD(Comune d) {
         D = d;
     }
-
     public Comune getVerona() {
         return verona;
     }
-
     public void setVerona(Comune verona) {
         this.verona = verona;
     }
-
     public void setShortestpath(List<Integer> shortestpath) {
         this.shortestpath = shortestpath;
     }
-
     public List<List<Integer>> getGraph() {
         return graph;
     }
-
     public void setGraph(List<List<Integer>> graph) {
         this.graph = graph;
     }
-
     public int getV() {
         return V;
     }
-
     public void setV(int v) {
         V = v;
     }
-
     public Map<Integer, Comune> getNomiComuni() {
         return nomiComuni;
     }
-
     public void setNomiComuni(Map<Integer, Comune> nomiComuni) {
         this.nomiComuni = nomiComuni;
     }
-
     public void setComuni(ArrayList<Comune> comuni) {
         this.comuni = comuni;
     }
