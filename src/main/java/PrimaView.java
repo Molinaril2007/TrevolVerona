@@ -1,3 +1,5 @@
+import org.apache.xmlgraphics.image.loader.impl.AbstractImageSessionContext;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -303,14 +305,14 @@ public class PrimaView {
         this.lblDifficile = lblDifficile;
     }
 
-    public JToggleButton getBtns (JToggleButton jToggleButton) {
-        if (jToggleButton.equals(btnSenzaVerona))
+    public JToggleButton getBtns (String identificativo) {
+        if (identificativo.equalsIgnoreCase("SenzaVerona"))
             return btnSenzaVerona;
-        else if (jToggleButton.equals(btnFacile))
+        else if (identificativo.equalsIgnoreCase("Facile"))
             return btnFacile;
-        else if (jToggleButton.equals(btnInizioFine))
+        else if (identificativo.equalsIgnoreCase("InizioFine"))
             return btnInizioFine;
-        else if (jToggleButton.equals(btnDifficile))
+        else if (identificativo.equalsIgnoreCase("Difficile"))
             return btnDifficile;
 
         return null;
@@ -341,5 +343,16 @@ public class PrimaView {
 
 
         return null;
+    }
+
+    public void setBooleans (JToggleButton jToggleButton, boolean state) {
+        if (jToggleButton.equals(btnSenzaVerona))
+            chosenRemove = state;
+        else if (jToggleButton.equals(btnFacile))
+            chosenFacile = state;
+        else if (jToggleButton.equals(btnInizioFine))
+            chosenCustom = state;
+        else if (jToggleButton.equals(btnDifficile))
+            chosenDifficile = state;
     }
 }
