@@ -21,6 +21,7 @@ public class Controller {
     int max;
     String comuneSceltoInizio, comuneSceltoFine;
     List<String> comuniSVG;
+    int sceltaIpotesi;
 
 
     //Costruttore
@@ -40,35 +41,41 @@ public class Controller {
 
         primaView.getCmbComuneFine().addActionListener(e -> prendiFine());
 
-        primaView.getBtnOkay().addActionListener(e -> {
-
-            this.vista = new View("Trevol Verona");
-
-            //Parte logica
-            //-------------------------------------------------------------
-            costruisciGrafo();
-            inizioFine();
-            shortestPath();
-            percorsoBreve.addAll(provincia.getScelte());
-            percorsoBreve.remove(provincia.getS());
-            percorsoBreve.remove(provincia.getD());
-            nomiInseriti = new ArrayList<>();
-            percorso = new HashSet<>();
-            comuniSVG = new ArrayList<>();
-            //-------------------------------------------------------------
-
-            parteGrafica();
-
-            primoAvvio = primaView.getFinestra().isVisible();
-
-            primaView.getFinestra().setVisible(false);
-
-            vista.setVisible(true);
-            aggiornaMappa();
-            ascoltatori();
+        primaView.getCmbIpotesi().addActionListener(e -> {
+            sceltaIpotesi = primaView.getCmbIpotesi().getSelectedIndex();
+            System.out.println(sceltaIpotesi);
         });
 
+        primaView.getBtnOkay().addActionListener(e -> iniziaGioco());
+    }
 
+    void iniziaGioco () {
+        this.vista = new View("Trevol Verona");
+
+        parteLogica();
+        parteGrafica();
+
+        primoAvvio = primaView.getFinestra().isVisible();
+
+        primaView.getFinestra().setVisible(false);
+
+        vista.setVisible(true);
+        aggiornaMappa();
+        ascoltatori();
+    }
+    void parteLogica () {
+        //Parte logica
+        //-------------------------------------------------------------
+        costruisciGrafo();
+        inizioFine();
+        shortestPath();
+        percorsoBreve.addAll(provincia.getScelte());
+        percorsoBreve.remove(provincia.getS());
+        percorsoBreve.remove(provincia.getD());
+        nomiInseriti = new ArrayList<>();
+        percorso = new HashSet<>();
+        comuniSVG = new ArrayList<>();
+        //-------------------------------------------------------------
     }
 
     void gestisciBottone (JToggleButton jToggleButton) {
@@ -150,16 +157,17 @@ public class Controller {
 
     void costruisciGrafo() {
         List<List<Integer>> temporaryGraph;
-//        Set<Comune> confiniVerona = provincia.getVerona().getNeighbours();
         if (provincia.getComuni().contains(provincia.getVerona())) {
-            if (primaView.getBooleans(primaView.getBtnSenzaVerona())) {
+            if (primaView.getBooleans(primaView.getBtns("senzaVerona"))) {
                 provincia.getComuni().remove(provincia.getVerona().getId());
                 for (Comune c : provincia.getComuni()) {
                     c.getNeighbours().removeIf(comune -> comune.equals(provincia.getVerona()));
-//                    confiniVerona.add(c);
                 }
-            } else {
-                provincia.getComuni().set(provincia.getVerona().getId(), provincia.getVerona());
+            }
+        } else {
+            provincia.getComuni().add(provincia.getVerona().getId(), provincia.getVerona());
+            for (Comune c : provincia.getConfinantiVerona()) {
+                c.addNeighbours(provincia.getVerona());
             }
         }
         for (Comune c : provincia.getComuni()) {
@@ -216,27 +224,42 @@ public class Controller {
     }
 
     void parteGrafica() {
+        int guess = 0;
+        int min = provincia.getShortestpath().size() - 2;
 //Parte grafica
         //-------------------------------------------------------------
-        int min = provincia.getShortestpath().size() - 2;
+        switch (sceltaIpotesi) {
+            case 0:
 //            vista.setMin(min);
-        int guess;
+                if (min <= 3)
+                    guess = min + 4;
+                else if (min <= 6)
+                    guess = min + 5;
+                else if (min <= 9)
+                    guess = min + 6;
+                else if (min <= 12)
+                    guess = min + 7;
+                else
+                    guess = min + 8;
+                break;
+            case 1:
+                guess = min;
+                break;
+            case 2:
+                guess = -1;
+                break;
+        }
+        if (guess != -1) {
+            vista.getLblMaxGuess().setText("Tentativi massimi: " + guess);
+            vista.setGuess(guess);
+            max = vista.getGuess();
+            vista.initInserimenti();
+        } else {
+            vista.getLblMaxGuess().setText("Tentativi illimitati!");
+            vista.setGuess(98);
+            vista.initInserimenti();
 
-        if (min <= 3)
-            guess = min + 4;
-        else if (min <= 6)
-            guess = min + 5;
-        else if (min <= 9)
-            guess = min + 6;
-        else if (min <= 12)
-            guess = min + 7;
-        else
-            guess = min + 8;
-
-
-        vista.setGuess(guess);
-        max = vista.getGuess();
-        vista.initInserimenti();
+        }
         if (primaView.getBooleans(primaView.getBtnDifficile())) {
             vista.inserimenti[0] = new JLabel("???");
             vista.inserimenti[vista.inserimenti.length - 1] = new JLabel("???");
@@ -244,13 +267,12 @@ public class Controller {
             vista.inserimenti[0] = new JLabel(provincia.getS().getNome().toUpperCase());
             vista.inserimenti[vista.inserimenti.length - 1] = new JLabel(provincia.getD().getNome().toUpperCase());
         }
-        vista.inserimenti[vista.inserimenti.length - 1].setForeground(new Color(255, 242, 0));
+        vista.inserimenti[vista.inserimenti.length - 1].setForeground(new Color(255, 102, 0));
         vista.inserimenti[0].setForeground(new Color(163, 73, 164));
 
 
         vista.getPannelloElencoComuni().add(vista.inserimenti[0]);
         vista.getPannelloElencoComuni().add(vista.inserimenti[vista.inserimenti.length - 1]);
-        vista.getLblMaxGuess().setText("Tentativi massimi: " + guess);
         vista.getLblMaxGuess().setFont(new Font("Arial", Font.BOLD, 18));
         vista.getSource().setText(provincia.getS().getNome().toUpperCase());
         vista.getDestination().setText(provincia.getD().getNome().toUpperCase());
@@ -295,6 +317,7 @@ public class Controller {
             vista.inserimenti[i] = lblNuovoComune;
 
             vista.aggiornaComuni(vista.inserimenti);
+
             vista.getPannelloElencoComuni().validate();
 
             if (checkVittorie()) {
@@ -327,8 +350,11 @@ public class Controller {
                 vista.getInserisciComuni().setEditable(false);
                 vista.getPulsanteInvia().setEnabled(false);
             }
-            vista.setGuess(vista.getGuess() - 1);
-            vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + max);
+            if (sceltaIpotesi == -1) {
+                vista.setGuess(vista.getGuess() - 1);
+                vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + max);
+            }
+
             vista.getInserisciComuni().setText("");
             if (vista.getGuess() <= 0) {
                 JOptionPane.showMessageDialog(null, "Non sei riuscito a collegare inizio e fine entro i tentativi", "Hai esaurito i tentativi!", JOptionPane.INFORMATION_MESSAGE);
@@ -355,6 +381,7 @@ public class Controller {
         vista.getPannelloMappa().removeAll();
         vista.setCanvas(new JSVGCanvas());
         vista.getCanvas().setPreferredSize(new Dimension(381, 459));
+        vista.getCanvas().setBackground(new Color(0,0,0, 0));
         vista.getCanvas().setURI(".\\src\\main\\java\\img\\mappaNuova.svg");
         vista.getPannelloMappa().add(vista.getCanvas());
         vista.getPannelloMappa().revalidate();
@@ -382,15 +409,18 @@ public class Controller {
             boolean writeNextLines = false;
             int linesToWrite = 0;
             while ((line = reader.readLine()) != null) {
-                if (primaView.isChosenFacile())
+                if (primaView.isChosenFacile()) {
                     contornoMappa(line, writer);
-
+                }
+                if (primaView.getBooleans(primaView.getBtns("senzaVerona"))) {
+                    senzaVerona(line, writer);
+                }
                 if (line.contains("<path id=\"" + source.toLowerCase())) {
                     line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(163, 73, 164)");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + destination.toLowerCase())) {
-                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(255, 242, 0)");
+                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(255, 102, 0)");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + desiredId)) {
@@ -511,6 +541,15 @@ public class Controller {
         //--------------------------------------------------------------------------------------------
     }
 
+    public void senzaVerona (String line, Writer writer) throws IOException {
+        if (line.contains("id=\"verona\"")) {
+            String temp = line;
+            temp = temp.replace("rgb(97.254902%,76.470588%,0%)", "rgb(50, 50, 50)");
+//            temp = temp.replace("stroke:rgb(0%,0%,0%)", "stroke:rgb(255, 0, 0)");
+//            temp = temp.replace("stroke-width:0.1", "stroke-width:0.7");
+            writer.write(temp+"\n");
+        }
+    }
     String suggerimenti(String nomeComune) {
         if (nomeComune.equalsIgnoreCase("povegliano"))
             return "Povegliano Veronese";

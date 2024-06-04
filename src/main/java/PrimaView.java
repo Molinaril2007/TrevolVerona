@@ -19,6 +19,7 @@ public class PrimaView {
     private JButton btnOkay;
     private JComboBox cmbComuneInizio;
     private JComboBox cmbComuneFine;
+    private JComboBox cmbIpotesi;
     private boolean chosenCustom = false;
     private boolean chosenFacile = false;
     private boolean chosenRemove = false;
@@ -50,6 +51,11 @@ public class PrimaView {
             comuniInizio[i+1] = provincia.getComuni().get(i).getNome();
         }
         cmbComuneInizio = new JComboBox(comuniInizio);
+        String[] ipotesi = new String[3];
+        ipotesi[0] = "Tentativi Predefiniti";
+        ipotesi[1] = "Solo il percorso più breve";
+        ipotesi[2] = "Ipotesi illimitate";
+        cmbIpotesi = new JComboBox(ipotesi);
 
         //setBounds()
         lblTitolo.setBounds(440, 40, 300, 50);
@@ -80,6 +86,8 @@ public class PrimaView {
         cmbComuneInizio.setFont(new Font("SansSerif", Font.PLAIN, 18));
         cmbComuneFine.setBounds(300, 335, 300, 40);
         cmbComuneFine.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        cmbIpotesi.setBounds(700, 550, 300, 40);
+        cmbIpotesi.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
         finestra.setLayout(null);
         finestra.add(lblTitolo);
@@ -96,6 +104,7 @@ public class PrimaView {
         finestra.add(cmbComuneFine);
         finestra.add(lblDifficile);
         finestra.add(btnDifficile);
+        finestra.add(cmbIpotesi);
 
         cmbComuneFine.setEnabled(false);
         cmbComuneInizio.setEnabled(false);
@@ -303,6 +312,14 @@ public class PrimaView {
 
     public void setLblDifficile(JLabel lblDifficile) {
         this.lblDifficile = lblDifficile;
+    }
+
+    public JComboBox getCmbIpotesi() {
+        return cmbIpotesi;
+    }
+
+    public void setCmbIpotesi(JComboBox cmbIpotesi) {
+        this.cmbIpotesi = cmbIpotesi;
     }
 
     public JToggleButton getBtns (String identificativo) {

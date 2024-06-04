@@ -9,6 +9,7 @@ public class Provincia {
     Comune S = null;
     Comune D = null;
     List<Integer> shortestpath;
+    Set<Comune> confinantiVerona;
     Comune affi, albaredoDAdige, angiari, arcole, badiaCalavena, bardolino, belfiore, bevilacqua, bonavigo, boschiSantAnna, boscoChiesanuova, bovolone, brentinoBelluno, brenzoneSulGarda, bussolengo, buttapietra, caldiero, caprinoVeronese, casaleone, castagnaro, castelDAzzano, castelnuovoDelGarda, cavaionVeronese, cazzanoDiTramigna, cerea, cerroVeronese, colognaVeneta, colognolaAiColli, concamarise, costermanoSulGarda, dolce, erbe, erbezzo, ferraraDiMonteBaldo, fumane, garda, gazzoVeronese, grezzana, illasi, isolaDellaScala, isolaRizza, lavagno, lazise, legnago, malcesine, maranoDiValpolicella, mezzaneDiSotto, minerbe, montecchiaDiCrosara, monteforteDAlpone, mozzecane, negrarDiValpolicella, nogara, nogaroleRocca, oppeano, palu, pastrengo, pescantina, peschieraDelGarda, poveglianoVeronese, pressana, rivoliVeronese, ronca, roncoAllAdige, roverchiara, rovereVeronese, roveredoDiGua, salizzole, sanBonifacio, sanGiovanniIlarione, sanGiovanniLupatoto, sanMartinoBuonAlbergo, sanMauroDiSaline, sanPietroDiMorubio, sanPietroInCariano, sanZenoDiMontagna, sanguinetto, santAmbrogioDiValpolicella, santAnnaDAlfaedo, selvaDiProgno, soave, sommacampagna, sona, sorga, terrazzo, torriDelBenaco, tregnago, trevenzuolo, valeggioSulMincio, veloVeronese, verona, veronella, vestenanova, vigasio, villaBartolomea, villafranca, zevio, zimella;
 
     public Provincia() {
@@ -304,7 +305,6 @@ public class Provincia {
         trevenzuolo.addNeighbours(erbe, isolaDellaScala, nogaroleRocca, vigasio);
         valeggioSulMincio.addNeighbours(sommacampagna, sona, villafranca, mozzecane, peschieraDelGarda, castelnuovoDelGarda);
         veloVeronese.addNeighbours(badiaCalavena, rovereVeronese, sanMauroDiSaline, selvaDiProgno);
-        verona.addNeighbours(rovereVeronese, sanMauroDiSaline, tregnago, mezzaneDiSotto, sanMartinoBuonAlbergo, sanGiovanniLupatoto, buttapietra, castelDAzzano, villafranca, sommacampagna, sona, bussolengo, pescantina, sanPietroInCariano, negrarDiValpolicella, grezzana);
         veronella.addNeighbours(albaredoDAdige, arcole, belfiore, bonavigo, colognaVeneta, minerbe, pressana, zimella);
         vestenanova.addNeighbours(badiaCalavena, sanGiovanniIlarione, selvaDiProgno, tregnago);
         vigasio.addNeighbours(nogaroleRocca, buttapietra, isolaDellaScala, trevenzuolo, poveglianoVeronese, castelDAzzano);
@@ -312,6 +312,9 @@ public class Provincia {
         villafranca.addNeighbours(castelDAzzano, mozzecane, poveglianoVeronese, sommacampagna, valeggioSulMincio, verona, vigasio);
         zevio.addNeighbours(belfiore, caldiero, oppeano, palu, roncoAllAdige, sanGiovanniLupatoto, sanMartinoBuonAlbergo);
         zimella.addNeighbours(arcole, colognaVeneta, veronella);
+        verona.addNeighbours(rovereVeronese, sanMauroDiSaline, tregnago, mezzaneDiSotto, sanMartinoBuonAlbergo, sanGiovanniLupatoto, buttapietra, castelDAzzano, villafranca, sommacampagna, sona, bussolengo, pescantina, sanPietroInCariano, negrarDiValpolicella, grezzana);
+
+        confinantiVerona = verona.getNeighbours();
 
         for (Comune c : comuni) {
             nomiComuni.put(c.getId(), c);
@@ -369,5 +372,13 @@ public class Provincia {
     }
     public void setComuni(ArrayList<Comune> comuni) {
         this.comuni = comuni;
+    }
+
+    public Set<Comune> getConfinantiVerona() {
+        return confinantiVerona;
+    }
+
+    public void setConfinantiVerona(Set<Comune> confinantiVerona) {
+        this.confinantiVerona = confinantiVerona;
     }
 }

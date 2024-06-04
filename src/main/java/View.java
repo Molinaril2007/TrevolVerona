@@ -85,11 +85,14 @@ public class View extends JFrame {
         pack();
         setResizable(false);
         setTitle(titolo);
-        setSize(800, 700);
+        setSize(800, 570);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(false);
         setIconImage(icona.getImage());
+        System.out.println("Dimensioni pannello input: " + pannelloInput.getSize());
+        System.out.println("Dimensione pannello tentativi : " + pannelloTentativi.getSize());
+        System.out.println("Dimensione mappa: " + canvas.getPreferredSize());
     }
 
     void initInserimenti () {
