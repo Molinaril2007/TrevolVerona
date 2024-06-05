@@ -64,6 +64,9 @@ public class Controller {
         ascoltatori();
     }
     void parteLogica () {
+        provincia.setShortestpath(null);
+        percorsoBreve = null;
+        provincia.setScelte(new ArrayList<>());
         //Parte logica
         //-------------------------------------------------------------
         costruisciGrafo();
@@ -83,6 +86,11 @@ public class Controller {
         setNome(jToggleButton);
         if (jToggleButton.equals(primaView.getBtns("inizioFine"))) {
             primaView.getCmbComuneInizio().setEnabled(primaView.getBooleans(primaView.getBtns("inizioFine")));
+            if (!primaView.getBooleans(primaView.getBtns("inizioFine"))) {
+                primaView.getCmbComuneFine().setEnabled(primaView.getBooleans(primaView.getBtns("inizioFine")));
+                primaView.getCmbComuneFine().setSelectedIndex(0);
+                primaView.getCmbComuneInizio().setSelectedIndex(0);
+            }
         }
     }
     void ascoltatori () {
@@ -149,6 +157,7 @@ public class Controller {
             System.out.println(c.getNome());
         }
 
+        percorsoBreve = new HashSet<>();
         percorsoBreve.addAll(provincia.getScelte());
 
         percorsoBreve.remove(provincia.getS());
@@ -267,8 +276,8 @@ public class Controller {
             vista.inserimenti[0] = new JLabel(provincia.getS().getNome().toUpperCase());
             vista.inserimenti[vista.inserimenti.length - 1] = new JLabel(provincia.getD().getNome().toUpperCase());
         }
-        vista.inserimenti[vista.inserimenti.length - 1].setForeground(new Color(255, 102, 0));
-        vista.inserimenti[0].setForeground(new Color(163, 73, 164));
+        vista.inserimenti[vista.inserimenti.length - 1].setForeground(Costanti.COLORE_JLABEL_INIZIO);
+        vista.inserimenti[0].setForeground(Costanti.COLORE_JLABEL_FINE);
 
 
         vista.getPannelloElencoComuni().add(vista.inserimenti[0]);
@@ -284,6 +293,11 @@ public class Controller {
         int i = 1;
 
         JLabel lblNuovoComune = null;
+        for (Comune c : provincia.getComuni()) {
+            if (vista.getInserisciComuni().getText().startsWith(c.getNome())) {
+
+            }
+        }
         String comuneInserito = vista.getInserisciComuni().getText().toUpperCase();
 
         if (comuneInserito == null || comuneInserito.length() <= 0) {
@@ -329,6 +343,7 @@ public class Controller {
                     String tentativo = percorsoBreve.size() == 1 ? "tentativo" : "tentativi";
                     JOptionPane.showMessageDialog(null, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " " + tentativo +
                             "\nIl percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + tentativo);
+                    provincia.setScelte(null);
 
                 }
                 int scelta = JOptionPane.showConfirmDialog(null, "Vuoi fare un altra partita?");
@@ -350,7 +365,7 @@ public class Controller {
                 vista.getInserisciComuni().setEditable(false);
                 vista.getPulsanteInvia().setEnabled(false);
             }
-            if (sceltaIpotesi == -1) {
+            if (sceltaIpotesi != 2) {
                 vista.setGuess(vista.getGuess() - 1);
                 vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + max);
             }
@@ -380,9 +395,9 @@ public class Controller {
         vista.setCanvas(null);
         vista.getPannelloMappa().removeAll();
         vista.setCanvas(new JSVGCanvas());
-        vista.getCanvas().setPreferredSize(new Dimension(381, 459));
+        vista.getCanvas().setPreferredSize(Costanti.DIMENSIONE_CANVAS);
         vista.getCanvas().setBackground(new Color(0,0,0, 0));
-        vista.getCanvas().setURI(".\\src\\main\\java\\img\\mappaNuova.svg");
+        vista.getCanvas().setURI(Costanti.PERCORSO_FILE_NUOVA_MAPPA);
         vista.getPannelloMappa().add(vista.getCanvas());
         vista.getPannelloMappa().revalidate();
         vista.getPannelloMappa().repaint();

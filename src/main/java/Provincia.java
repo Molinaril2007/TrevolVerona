@@ -220,7 +220,7 @@ public class Provincia {
         angiari.addNeighbours(bonavigo, roverchiara, sanPietroDiMorubio, cerea, legnago);
         arcole.addNeighbours(zimella, veronella, belfiore, sanBonifacio);
         badiaCalavena.addNeighbours(vestenanova, tregnago, sanMauroDiSaline, veloVeronese, selvaDiProgno);
-        bardolino.addNeighbours(lazise, pastrengo, cavaionVeronese, affi, costermanoSulGarda, torriDelBenaco);
+        bardolino.addNeighbours(lazise, pastrengo, cavaionVeronese, affi, costermanoSulGarda, garda);
         belfiore.addNeighbours(roncoAllAdige, zevio, caldiero, colognolaAiColli, soave, sanBonifacio, arcole, veronella, albaredoDAdige);
         bevilacqua.addNeighbours(boschiSantAnna, minerbe, terrazzo);
         bonavigo.addNeighbours(albaredoDAdige, veronella, minerbe, legnago, angiari, roverchiara);
@@ -237,7 +237,7 @@ public class Provincia {
         castagnaro.addNeighbours(villaBartolomea, terrazzo);
         castelDAzzano.addNeighbours(vigasio, villafranca, verona);
         castelnuovoDelGarda.addNeighbours(peschieraDelGarda, lazise, bussolengo, sona, valeggioSulMincio);
-        cavaionVeronese.addNeighbours(bardolino, affi, rivoliVeronese, santAmbrogioDiValpolicella);
+        cavaionVeronese.addNeighbours(bardolino, affi, rivoliVeronese, santAmbrogioDiValpolicella, pastrengo);
         cazzanoDiTramigna.addNeighbours(colognolaAiColli, illasi, montecchiaDiCrosara, sanGiovanniIlarione, soave, tregnago);
         cerea.addNeighbours(casaleone, sanguinetto, concamarise, bovolone, sanPietroDiMorubio, angiari, legnago);
         cerroVeronese.addNeighbours(grezzana, boscoChiesanuova, rovereVeronese);
@@ -381,4 +381,9 @@ public class Provincia {
     public void setConfinantiVerona(Set<Comune> confinantiVerona) {
         this.confinantiVerona = confinantiVerona;
     }
+
+    public void setScelte(ArrayList<Comune> scelte) {
+        this.scelte = scelte;
+    }
+
 }
