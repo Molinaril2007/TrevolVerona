@@ -59,7 +59,8 @@ public class PrimaView {
 
         //setBounds()
         lblTitolo.setBounds(440, 40, 300, 50);
-        lblTitolo.setFont(new Font("SansSerif", Font.ITALIC, 36));
+        lblTitolo.setForeground(Color.BLACK);
+        lblTitolo.setFont(new Font("Impact", Font.PLAIN, 40));
         lblFacile.setBounds(20, 130, 700, 30);
         lblFacile.setFont(new Font("SansSerif", Font.PLAIN, 26));
         lblCustom.setBounds(20, 190, 700, 30);
@@ -113,6 +114,7 @@ public class PrimaView {
         finestra.setSize(1100, 650);
         finestra.setLocationRelativeTo(null);
         finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        finestra.setIconImage(Costanti.ICONA.getImage());
         finestra.setVisible(true);
 
         /*
@@ -144,22 +146,22 @@ public class PrimaView {
 
     public String nomeFacile (boolean chosenFacile) {
         String stringChosenFacile;
-        return stringChosenFacile = chosenFacile ? "Attivato": "Disattivato";
+        return stringChosenFacile = chosenFacile ? Costanti.BOTTONE_ATTIVO: Costanti.BOTTONE_NON_ATTIVO;
     }
 
     public String nomeCustom (boolean chosenCustom) {
         String stringChosenCustom;
-        return stringChosenCustom = chosenCustom ? "Attivato" : "Disattivato";
+        return stringChosenCustom = chosenCustom ? Costanti.BOTTONE_ATTIVO : Costanti.BOTTONE_NON_ATTIVO;
     }
 
     public String nomeRemove (boolean chosenRemove) {
         String stringChosenRemove;
-        return stringChosenRemove = chosenRemove ? "Attivato" : "Disattivato";
+        return stringChosenRemove = chosenRemove ? Costanti.BOTTONE_ATTIVO: Costanti.BOTTONE_NON_ATTIVO;
     }
 
     public String nomeDiffficile (boolean chosenDifficile) {
         String stringChosenDifficile;
-        return stringChosenDifficile = chosenDifficile ? "Attivato" : "Disattivato";
+        return stringChosenDifficile = chosenDifficile ? Costanti.BOTTONE_ATTIVO : Costanti.BOTTONE_NON_ATTIVO;
     }
 
     public JFrame getFinestra() {
@@ -323,13 +325,13 @@ public class PrimaView {
     }
 
     public JToggleButton getBtns (String identificativo) {
-        if (identificativo.equalsIgnoreCase("SenzaVerona"))
+        if (identificativo.equalsIgnoreCase(Costanti.ID_SENZA_VERONA))
             return btnSenzaVerona;
-        else if (identificativo.equalsIgnoreCase("Facile"))
+        else if (identificativo.equalsIgnoreCase(Costanti.ID_FACILE))
             return btnFacile;
-        else if (identificativo.equalsIgnoreCase("InizioFine"))
+        else if (identificativo.equalsIgnoreCase(Costanti.ID_INIZIO_FINE))
             return btnInizioFine;
-        else if (identificativo.equalsIgnoreCase("Difficile"))
+        else if (identificativo.equalsIgnoreCase(Costanti.ID_DIFFICILE))
             return btnDifficile;
 
         return null;

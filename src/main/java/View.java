@@ -67,7 +67,9 @@ public class View extends JFrame {
 
 
         pannelloNomi.setLayout(new BorderLayout());
-        pannelloNomi.add(new JScrollPane(pannelloElencoComuni), BorderLayout.CENTER);
+        JScrollPane jScrollPane = new JScrollPane(pannelloElencoComuni);
+        jScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        pannelloNomi.add(jScrollPane, BorderLayout.CENTER);
 
         pannelloNomi.setBackground(new Color(255, 0, 0));
         pannelloTentativi.add(lblMaxGuess);
@@ -85,7 +87,7 @@ public class View extends JFrame {
         pack();
         setResizable(false);
         setTitle(titolo);
-        setSize(800, 570);
+        setSize(Costanti.DIMENSIONE_FINESTRA);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(false);

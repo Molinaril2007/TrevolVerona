@@ -1,3 +1,4 @@
+import com.sun.org.apache.xerces.internal.impl.xs.SubstitutionGroupHandler;
 import org.apache.batik.swing.JSVGCanvas;
 
 import javax.swing.*;
@@ -16,12 +17,12 @@ public class Controller {
     private Provincia provincia;
     List<String> nomiInseriti;
     Set<Comune> percorso;
-    boolean primoAvvio = true, okayInizioFine;
+    boolean primoAvvio = true, okayInizioFine, vittoria = false;
     Set<Comune> percorsoBreve = new HashSet<>();
     int max;
     String comuneSceltoInizio, comuneSceltoFine;
     List<String> comuniSVG;
-    int sceltaIpotesi;
+    int sceltaIpotesi = 0;
 
 
     //Costruttore
@@ -167,17 +168,24 @@ public class Controller {
     void costruisciGrafo() {
         List<List<Integer>> temporaryGraph;
         if (provincia.getComuni().contains(provincia.getVerona())) {
-            if (primaView.getBooleans(primaView.getBtns("senzaVerona"))) {
+            JOptionPane.showMessageDialog(null, "Contiene Verona");
+            if (primaView.getBooleans(primaView.getBtns(Costanti.ID_SENZA_VERONA))) {
+                JOptionPane.showMessageDialog(null, "Scelta modalità senza verona, bisogna toglierla");
                 provincia.getComuni().remove(provincia.getVerona().getId());
                 for (Comune c : provincia.getComuni()) {
                     c.getNeighbours().removeIf(comune -> comune.equals(provincia.getVerona()));
                 }
             }
         } else {
-            provincia.getComuni().add(provincia.getVerona().getId(), provincia.getVerona());
-            for (Comune c : provincia.getConfinantiVerona()) {
-                c.addNeighbours(provincia.getVerona());
+            JOptionPane.showMessageDialog(null, "Non contiene verona, va aggiunta");
+            if (!primaView.getBooleans(primaView.getBtns(Costanti.ID_SENZA_VERONA))) {
+                JOptionPane.showMessageDialog(null, "Aggiungo verona");
+                provincia.getComuni().add(provincia.getVerona().getId(), provincia.getVerona());
+                for (Comune c : provincia.getConfinantiVerona()) {
+                    c.addNeighbours(provincia.getVerona());
+                }
             }
+
         }
         for (Comune c : provincia.getComuni()) {
             System.out.println(c);
@@ -276,13 +284,15 @@ public class Controller {
             vista.inserimenti[0] = new JLabel(provincia.getS().getNome().toUpperCase());
             vista.inserimenti[vista.inserimenti.length - 1] = new JLabel(provincia.getD().getNome().toUpperCase());
         }
-        vista.inserimenti[vista.inserimenti.length - 1].setForeground(Costanti.COLORE_JLABEL_INIZIO);
-        vista.inserimenti[0].setForeground(Costanti.COLORE_JLABEL_FINE);
+        vista.inserimenti[vista.inserimenti.length - 1].setForeground(Costanti.COLORE_JLABEL_FINE);
+        vista.inserimenti[0].setForeground(Costanti.COLORE_JLABEL_INIZIO);
 
+        vista.inserimenti[0].setFont(Costanti.FONT_INSERIMENTI);
+        vista.inserimenti[vista.inserimenti.length-1].setFont(Costanti.FONT_INSERIMENTI);
 
         vista.getPannelloElencoComuni().add(vista.inserimenti[0]);
         vista.getPannelloElencoComuni().add(vista.inserimenti[vista.inserimenti.length - 1]);
-        vista.getLblMaxGuess().setFont(new Font("Arial", Font.BOLD, 18));
+        vista.getLblMaxGuess().setFont(new Font("Arial", Font.BOLD, 30));
         vista.getSource().setText(provincia.getS().getNome().toUpperCase());
         vista.getDestination().setText(provincia.getD().getNome().toUpperCase());
     }
@@ -293,11 +303,6 @@ public class Controller {
         int i = 1;
 
         JLabel lblNuovoComune = null;
-        for (Comune c : provincia.getComuni()) {
-            if (vista.getInserisciComuni().getText().startsWith(c.getNome())) {
-
-            }
-        }
         String comuneInserito = vista.getInserisciComuni().getText().toUpperCase();
 
         if (comuneInserito == null || comuneInserito.length() <= 0) {
@@ -314,6 +319,8 @@ public class Controller {
         } else if (checkNome(provincia.getComuni(), comuneInserito)) {
             aggiungiNome(provincia.getComuni(), comuneInserito);
 
+            vista.getInserisciComuni().setText("");
+
             createNewSVGFile(comuneInserito.toLowerCase(), comuniSVG, provincia.getS().getNome(), provincia.getD().getNome());
             aggiornaMappa();
 
@@ -328,13 +335,14 @@ public class Controller {
                 lblNuovoComune.setForeground(Color.RED);
             }
 
+            lblNuovoComune.setFont(Costanti.FONT_INSERIMENTI);
+
             vista.inserimenti[i] = lblNuovoComune;
 
             vista.aggiornaComuni(vista.inserimenti);
 
             vista.getPannelloElencoComuni().validate();
-
-            if (checkVittorie()) {
+/*            if (checkVittorie()) {
 
                 JOptionPane.showMessageDialog(null, "Complimenti, sei riuscito a collegare inizio e fine!", "HAI VINTO!", JOptionPane.INFORMATION_MESSAGE);
                 if (checkShortestPath())
@@ -376,6 +384,42 @@ public class Controller {
                 vista.getInserisciComuni().setEditable(false);
                 vista.getPulsanteInvia().setEnabled(false);
             }
+
+ */
+            if (sceltaIpotesi != 2) {
+                vista.setGuess(vista.getGuess()-1);
+                vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + max);
+            }
+
+//            vittoria = checkVittorie() && vista.getGuess() >= 0;
+//            JOptionPane.showMessageDialog(null, vittoria);
+            if (vista.getGuess() >= 0) {
+                if (checkVittorie()) {
+                    vittoria = true;
+                }
+            }
+            if (vittoria) {
+                JOptionPane.showMessageDialog(vista, "Hai vinto!");
+                if (checkShortestPath()) {
+                    JOptionPane.showMessageDialog(vista, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " tentativi" + "\nLa soluzione più breve era in " + percorsoBreve.size() + " tentativi");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " " + singolareTentativi(percorso.size()) +
+                            "\nIl percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + singolareTentativi(percorsoBreve.size()));
+                    provincia.setScelte(null);
+                }
+                comuniSVG = null;
+                percorso = null;
+                nomiInseriti = null;
+                vittoria = false;
+                playAgain();
+            } else if (vista.getGuess() <= 0){
+                comuniSVG = null;
+                percorso = null;
+                nomiInseriti = null;
+                JOptionPane.showMessageDialog(null, "Hai perso");
+                playAgain();
+            }
+
         } else {
             if (primaView.isChosenRemove() && vista.getInserisciComuni().getText().equalsIgnoreCase("verona"))
                 JOptionPane.showMessageDialog(null, "Hai scelto la modalità senza Verona");
@@ -385,6 +429,27 @@ public class Controller {
             vista.getInserisciComuni().setText("");
         }
 
+    }
+
+    public String singolareTentativi (int x) {
+        if (x == 1)
+            return "Tentativo";
+        else
+            return "Tentativi";
+    }
+    public void playAgain () {
+        int scelta = JOptionPane.showConfirmDialog(vista, "Vuoi fare un altra partita?");
+        if (scelta == 0) {
+            System.out.println("Hai premuto si");
+            vista.setVisible(false);
+            primaView.getFinestra().setVisible(true);
+        } else if (scelta == 1) {
+            System.out.println("hai premuto no");
+            System.exit(1);
+        } else if (scelta == 2)
+            System.out.println("hai premuto annulla");
+        else
+            System.out.println("Finestra chiusa");
     }
 
     public void aggiornaMappa() {
@@ -431,11 +496,11 @@ public class Controller {
                     senzaVerona(line, writer);
                 }
                 if (line.contains("<path id=\"" + source.toLowerCase())) {
-                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(163, 73, 164)");
+                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb("+Costanti.COLORE_JLABEL_INIZIO.getRed()+","+Costanti.COLORE_JLABEL_INIZIO.getGreen()+","+Costanti.COLORE_JLABEL_INIZIO.getBlue()+")");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + destination.toLowerCase())) {
-                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb(255, 102, 0)");
+                    line = line.replace("rgb(97.254902%,76.470588%,0%)", "rgb("+Costanti.COLORE_JLABEL_FINE.getRed()+","+Costanti.COLORE_JLABEL_FINE.getGreen()+","+Costanti.COLORE_JLABEL_FINE.getBlue()+")");
                     writer.write(line + "\n");
                 }
                 if (line.contains("<path id=\"" + desiredId)) {
