@@ -92,9 +92,9 @@ public class View extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(false);
         setIconImage(icona.getImage());
-        System.out.println("Dimensioni pannello input: " + pannelloInput.getSize());
-        System.out.println("Dimensione pannello tentativi : " + pannelloTentativi.getSize());
-        System.out.println("Dimensione mappa: " + canvas.getPreferredSize());
+//        System.out.println("Dimensioni pannello input: " + pannelloInput.getSize());
+//        System.out.println("Dimensione pannello tentativi : " + pannelloTentativi.getSize());
+//        System.out.println("Dimensione mappa: " + canvas.getPreferredSize());
     }
 
     void initInserimenti () {

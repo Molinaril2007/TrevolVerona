@@ -1,5 +1,3 @@
-import org.apache.xmlgraphics.image.loader.impl.AbstractImageSessionContext;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,11 +5,12 @@ public class PrimaView {
     private JFrame finestra;
     private JLabel lblTitolo;
     private JLabel lblFacile;
-    private JLabel lblCustom;
+    private JLabel lblInizioFine;
     private JLabel lblComuneInizio;
     private JLabel lblComuneFine;
-    private JLabel lblRemove;
+    private JLabel lblSenzaVerona;
     private JLabel lblDifficile;
+    private JLabel lblTentativi;
     private JToggleButton btnFacile;
     private JToggleButton btnInizioFine;
     private JToggleButton btnSenzaVerona;
@@ -19,25 +18,26 @@ public class PrimaView {
     private JButton btnOkay;
     private JComboBox cmbComuneInizio;
     private JComboBox cmbComuneFine;
-    private JComboBox cmbIpotesi;
-    private boolean chosenCustom = false;
-    private boolean chosenFacile = false;
-    private boolean chosenRemove = false;
-    private boolean chosenDifficile = false;
+    private JComboBox cmbTentativi;
+    private boolean inizioFine = false;
+    private boolean facile = false;
+    private boolean senzaVerona = false;
+    private boolean difficile = false;
 
     public PrimaView(Provincia provincia) {
         finestra = new JFrame();
         lblTitolo = new JLabel("Trevol Verona");
         lblFacile = new JLabel("Clicca il pulsante per la modalità facile");
-        lblCustom = new JLabel("Clicca il pulsante per scegliere i comuni di inizio e di fine");
+        lblInizioFine = new JLabel("Clicca il pulsante per scegliere i comuni di inizio e di fine");
         lblComuneInizio = new JLabel("Comune di inizio:");
         lblComuneFine = new JLabel("Comune di fine:");
-        lblRemove = new JLabel("Clicca il pulsante per giocare senza Verona");
+        lblSenzaVerona = new JLabel("Clicca il pulsante per giocare senza Verona");
         lblDifficile = new JLabel("Clicca il pulsante per la modalità difficile");
-        btnDifficile = new JToggleButton(nomeDiffficile(chosenDifficile));
-        btnFacile = new JToggleButton(nomeFacile(chosenFacile));
-        btnInizioFine = new JToggleButton(nomeCustom(chosenCustom));
-        btnSenzaVerona = new JToggleButton(nomeRemove(chosenRemove));
+        lblTentativi = new JLabel("Tentativi extra?");
+        btnDifficile = new JToggleButton(nomeDiffficile(difficile));
+        btnFacile = new JToggleButton(nomeFacile(facile));
+        btnInizioFine = new JToggleButton(nomeInizioFine(inizioFine));
+        btnSenzaVerona = new JToggleButton(nomeSenzaVerona(senzaVerona));
         btnOkay = new JButton("OK!");
         String[] comuniFine = new String[provincia.getComuni().size()+1];
         comuniFine[0] = "Seleziona il comune di fine";
@@ -54,49 +54,60 @@ public class PrimaView {
         String[] ipotesi = new String[3];
         ipotesi[0] = "Tentativi Predefiniti";
         ipotesi[1] = "Solo il percorso più breve";
-        ipotesi[2] = "Ipotesi illimitate";
-        cmbIpotesi = new JComboBox(ipotesi);
+        ipotesi[2] = "Tentativi illimitati";
+        cmbTentativi = new JComboBox(ipotesi);
 
         //setBounds()
-        lblTitolo.setBounds(440, 40, 300, 50);
+        lblTitolo.setBounds(440, 20, 300, 50);
         lblTitolo.setForeground(Color.BLACK);
         lblTitolo.setFont(new Font("Impact", Font.PLAIN, 40));
-        lblFacile.setBounds(20, 130, 700, 30);
-        lblFacile.setFont(new Font("SansSerif", Font.PLAIN, 26));
-        lblCustom.setBounds(20, 190, 700, 30);
-        lblCustom.setFont(new Font("SansSerif", Font.PLAIN, 26));
-        lblComuneInizio.setBounds(20, 280, 300, 30);
-        lblComuneInizio.setFont(new Font("SansSerif", Font.PLAIN, 26));
-        lblComuneFine.setBounds(20, 340, 300, 30);
-        lblComuneFine.setFont(new Font("SansSerif", Font.PLAIN, 26));
-        lblDifficile.setFont(new Font("SansSerif", Font.PLAIN, 26));
-        lblDifficile.setBounds(20, 495, 700, 30);
-        lblRemove.setBounds(20, 430, 700, 30);
-        lblRemove.setFont(new Font("SansSerif", Font.PLAIN, 26));
-        btnFacile.setBounds(950, 125, 100, 40);
-        btnFacile.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        btnInizioFine.setBounds(950, 185, 100, 40);
-        btnInizioFine.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        btnSenzaVerona.setBounds(950, 425, 100, 40);
-        btnSenzaVerona.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        btnOkay.setBounds(500, 550, 100, 40);
+
+        lblFacile.setBounds(20, 100, 700, 30);
+        lblFacile.setFont(Costanti.FONT_LBL_PRIMAVIEW);
+        btnFacile.setBounds(950, 95, 100, 40);
+        btnFacile.setFont(Costanti.FONT_BTN_PRIMAVIEW);
+
+        lblInizioFine.setBounds(20, 160, 700, 30);
+        lblInizioFine.setFont(Costanti.FONT_LBL_PRIMAVIEW);
+        btnInizioFine.setBounds(950, 155, 100, 40);
+        btnInizioFine.setFont(Costanti.FONT_BTN_PRIMAVIEW);
+
+        lblComuneInizio.setBounds(20, 220, 300, 30);
+        lblComuneInizio.setFont(Costanti.FONT_LBL_PRIMAVIEW);
+        cmbComuneInizio.setBounds(300, 215, 300, 40);
+        cmbComuneInizio.setFont(Costanti.FONT_BTN_PRIMAVIEW);
+
+        lblComuneFine.setBounds(20, 280, 300, 30);
+        lblComuneFine.setFont(Costanti.FONT_LBL_PRIMAVIEW);
+        cmbComuneFine.setBounds(300, 275, 300, 40);
+        cmbComuneFine.setFont(Costanti.FONT_BTN_PRIMAVIEW);
+
+        lblSenzaVerona.setBounds(20, 340, 700, 30);
+        lblSenzaVerona.setFont(Costanti.FONT_LBL_PRIMAVIEW);
+        btnSenzaVerona.setBounds(950, 335, 100, 40);
+        btnSenzaVerona.setFont(Costanti.FONT_BTN_PRIMAVIEW);
+
+        lblDifficile.setBounds(20, 400, 700, 30);
+        lblDifficile.setFont(Costanti.FONT_LBL_PRIMAVIEW);
+        btnDifficile.setBounds(950, 395, 100, 40);
+        btnDifficile.setFont(Costanti.FONT_BTN_PRIMAVIEW);
+
+        lblTentativi.setBounds(20, 460, 700, 30);
+        lblTentativi.setFont(Costanti.FONT_LBL_PRIMAVIEW);
+        cmbTentativi.setBounds(750, 455, 300, 40);
+        cmbTentativi.setFont(Costanti.FONT_BTN_PRIMAVIEW);
+
+        btnOkay.setBounds(500, 520, 100, 40);
         btnOkay.setFont(new Font("SansSerif", Font.PLAIN, 24));
-        btnDifficile.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        btnDifficile.setBounds(950, 495, 100, 40);
-        cmbComuneInizio.setBounds(300, 275, 300, 40);
-        cmbComuneInizio.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        cmbComuneFine.setBounds(300, 335, 300, 40);
-        cmbComuneFine.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        cmbIpotesi.setBounds(700, 550, 300, 40);
-        cmbIpotesi.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
         finestra.setLayout(null);
+
         finestra.add(lblTitolo);
         finestra.add(lblFacile);
-        finestra.add(lblCustom);
+        finestra.add(lblInizioFine);
         finestra.add(lblComuneInizio);
         finestra.add(lblComuneFine);
-        finestra.add(lblRemove);
+        finestra.add(lblSenzaVerona);
         finestra.add(btnFacile);
         finestra.add(btnInizioFine);
         finestra.add(btnSenzaVerona);
@@ -105,13 +116,14 @@ public class PrimaView {
         finestra.add(cmbComuneFine);
         finestra.add(lblDifficile);
         finestra.add(btnDifficile);
-        finestra.add(cmbIpotesi);
+        finestra.add(cmbTentativi);
+        finestra.add(lblTentativi);
 
         cmbComuneFine.setEnabled(false);
         cmbComuneInizio.setEnabled(false);
 
         //lblTitolo.setBounds();
-        finestra.setSize(1100, 650);
+        finestra.setSize(1100, 620);
         finestra.setLocationRelativeTo(null);
         finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         finestra.setIconImage(Costanti.ICONA.getImage());
@@ -144,184 +156,40 @@ public class PrimaView {
 
     }
 
-    public String nomeFacile (boolean chosenFacile) {
-        String stringChosenFacile;
-        return stringChosenFacile = chosenFacile ? Costanti.BOTTONE_ATTIVO: Costanti.BOTTONE_NON_ATTIVO;
+    public String nomeFacile (boolean facile) {
+        return facile ? Costanti.BOTTONE_ATTIVO: Costanti.BOTTONE_NON_ATTIVO;
     }
 
-    public String nomeCustom (boolean chosenCustom) {
-        String stringChosenCustom;
-        return stringChosenCustom = chosenCustom ? Costanti.BOTTONE_ATTIVO : Costanti.BOTTONE_NON_ATTIVO;
+    public String nomeInizioFine(boolean inizioFine) {
+        return inizioFine ? Costanti.BOTTONE_ATTIVO : Costanti.BOTTONE_NON_ATTIVO;
     }
 
-    public String nomeRemove (boolean chosenRemove) {
-        String stringChosenRemove;
-        return stringChosenRemove = chosenRemove ? Costanti.BOTTONE_ATTIVO: Costanti.BOTTONE_NON_ATTIVO;
+    public String nomeSenzaVerona(boolean senzaVerona) {
+        return senzaVerona ? Costanti.BOTTONE_ATTIVO: Costanti.BOTTONE_NON_ATTIVO;
     }
 
-    public String nomeDiffficile (boolean chosenDifficile) {
-        String stringChosenDifficile;
-        return stringChosenDifficile = chosenDifficile ? Costanti.BOTTONE_ATTIVO : Costanti.BOTTONE_NON_ATTIVO;
+    public String nomeDiffficile (boolean difficile) {
+        return difficile ? Costanti.BOTTONE_ATTIVO : Costanti.BOTTONE_NON_ATTIVO;
     }
 
     public JFrame getFinestra() {
         return finestra;
     }
 
-    public void setFinestra(JFrame finestra) {
-        this.finestra = finestra;
-    }
-
     public JButton getBtnOkay() {
         return btnOkay;
-    }
-
-    public void setBtnOkay(JButton btnOkay) {
-        this.btnOkay = btnOkay;
-    }
-
-    public JLabel getLblFacile() {
-        return lblFacile;
-    }
-
-    public void setLblFacile(JLabel lblFacile) {
-        this.lblFacile = lblFacile;
-    }
-
-    public JLabel getLblCustom() {
-        return lblCustom;
-    }
-
-    public void setLblCustom(JLabel lblCustom) {
-        this.lblCustom = lblCustom;
-    }
-
-    public JLabel getLblRemove() {
-        return lblRemove;
-    }
-
-    public void setLblRemove(JLabel lblRemove) {
-        this.lblRemove = lblRemove;
-    }
-
-    public JToggleButton getBtnFacile() {
-        return btnFacile;
-    }
-
-    public void setBtnFacile(JToggleButton btnFacile) {
-        this.btnFacile = btnFacile;
-    }
-
-    public JLabel getLblTitolo() {
-        return lblTitolo;
-    }
-
-    public void setLblTitolo(JLabel lblTitolo) {
-        this.lblTitolo = lblTitolo;
-    }
-
-    public JLabel getLblComuneInizio() {
-        return lblComuneInizio;
-    }
-
-    public void setLblComuneInizio(JLabel lblComuneInizio) {
-        this.lblComuneInizio = lblComuneInizio;
-    }
-
-    public JLabel getLblComuneFine() {
-        return lblComuneFine;
-    }
-
-    public void setLblComuneFine(JLabel lblComuneFine) {
-        this.lblComuneFine = lblComuneFine;
-    }
-
-    public JToggleButton getBtnInizioFine() {
-        return btnInizioFine;
-    }
-
-    public void setBtnInizioFine(JToggleButton btnInizioFine) {
-        this.btnInizioFine = btnInizioFine;
-    }
-
-    public JToggleButton getBtnSenzaVerona() {
-        return btnSenzaVerona;
-    }
-
-    public void setBtnSenzaVerona(JToggleButton btnSenzaVerona) {
-        this.btnSenzaVerona = btnSenzaVerona;
     }
 
     public JComboBox getCmbComuneInizio() {
         return cmbComuneInizio;
     }
 
-    public void setCmbComuneInizio(JComboBox cmbComuneInizio) {
-        this.cmbComuneInizio = cmbComuneInizio;
-    }
-
     public JComboBox getCmbComuneFine() {
         return cmbComuneFine;
     }
 
-    public void setCmbComuneFine(JComboBox cmbComuneFine) {
-        this.cmbComuneFine = cmbComuneFine;
-    }
-
-    public boolean isChosenCustom() {
-        return chosenCustom;
-    }
-
-    public void setChosenCustom(boolean chosenCustom) {
-        this.chosenCustom = chosenCustom;
-    }
-
-    public boolean isChosenFacile() {
-        return chosenFacile;
-    }
-
-    public void setChosenFacile(boolean chosenFacile) {
-        this.chosenFacile = chosenFacile;
-    }
-
-    public boolean isChosenRemove() {
-        return chosenRemove;
-    }
-
-    public void setChosenRemove(boolean chosenRemove) {
-        this.chosenRemove = chosenRemove;
-    }
-
-    public JToggleButton getBtnDifficile() {
-        return btnDifficile;
-    }
-
-    public void setBtnDifficile(JToggleButton btnDifficile) {
-        this.btnDifficile = btnDifficile;
-    }
-
-    public boolean isChosenDifficile() {
-        return chosenDifficile;
-    }
-
-    public void setChosenDifficile(boolean chosenDifficile) {
-        this.chosenDifficile = chosenDifficile;
-    }
-
-    public JLabel getLblDifficile() {
-        return lblDifficile;
-    }
-
-    public void setLblDifficile(JLabel lblDifficile) {
-        this.lblDifficile = lblDifficile;
-    }
-
-    public JComboBox getCmbIpotesi() {
-        return cmbIpotesi;
-    }
-
-    public void setCmbIpotesi(JComboBox cmbIpotesi) {
-        this.cmbIpotesi = cmbIpotesi;
+    public JComboBox getCmbTentativi() {
+        return cmbTentativi;
     }
 
     public JToggleButton getBtns (String identificativo) {
@@ -339,24 +207,24 @@ public class PrimaView {
 
     public boolean getBooleans (JToggleButton jToggleButton) {
         if (jToggleButton.equals(btnSenzaVerona))
-            return chosenRemove;
+            return senzaVerona;
         else if (jToggleButton.equals(btnFacile))
-            return chosenFacile;
+            return facile;
         else if (jToggleButton.equals(btnInizioFine))
-            return chosenCustom;
+            return inizioFine;
         else if (jToggleButton.equals(btnDifficile))
-            return chosenDifficile;
+            return difficile;
 
         return false;
     }
 
     public String getStrings (JToggleButton jToggleButton, boolean state) {
         if (jToggleButton.equals(btnSenzaVerona))
-            return nomeRemove(state);
+            return nomeSenzaVerona(state);
         else if (jToggleButton.equals(btnFacile))
             return nomeFacile(state);
         else if (jToggleButton.equals(btnInizioFine))
-            return nomeCustom(state);
+            return nomeInizioFine(state);
         else if (jToggleButton.equals(btnDifficile))
             return nomeDiffficile(state);
 
@@ -366,12 +234,26 @@ public class PrimaView {
 
     public void setBooleans (JToggleButton jToggleButton, boolean state) {
         if (jToggleButton.equals(btnSenzaVerona))
-            chosenRemove = state;
+            senzaVerona = state;
         else if (jToggleButton.equals(btnFacile))
-            chosenFacile = state;
+            facile = state;
         else if (jToggleButton.equals(btnInizioFine))
-            chosenCustom = state;
+            inizioFine = state;
         else if (jToggleButton.equals(btnDifficile))
-            chosenDifficile = state;
+            difficile = state;
+    }
+
+    public String getNomi (JToggleButton jToggleButton, boolean state) {
+        if (jToggleButton.equals(btnFacile)) {
+            return nomeFacile(state);
+        } else if (jToggleButton.equals(btnDifficile)) {
+            return nomeDiffficile(state);
+        } else if (jToggleButton.equals(btnInizioFine)) {
+            return nomeInizioFine(state);
+        } else if (jToggleButton.equals(btnSenzaVerona)) {
+            return nomeSenzaVerona(state);
+        }
+
+        return null;
     }
 }
