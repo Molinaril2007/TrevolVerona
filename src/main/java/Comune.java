@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.*;
 
-public class Comune {
+public class Comune implements Serializable {
     private static int progressive = 0;
 
     private String nome = "";

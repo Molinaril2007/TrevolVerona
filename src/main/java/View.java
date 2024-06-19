@@ -11,7 +11,6 @@ public class View extends JFrame {
     private JLabel etichetta, mappaTesto, lblMaxGuess, source, destination;
     private ImageIcon icona = new ImageIcon(".\\src\\main\\java\\img\\VeronaStemma.png");
     private int guess, preGuess;
-    public JLabel[] inserimenti;
     private JSVGCanvas canvas;
     private Comune comuneS, comuneD;
 
@@ -80,6 +79,8 @@ public class View extends JFrame {
         pannelloNomi.setBackground(new Color(40, 40, 40));
         pannelloElencoComuni.setBackground(new Color(40, 40, 40));
 */
+
+
         add(pannelloInput, BorderLayout.NORTH);
         add(pannelloNomi);
         add(pannelloMappa, BorderLayout.LINE_START);
@@ -97,17 +98,10 @@ public class View extends JFrame {
 //        System.out.println("Dimensione mappa: " + canvas.getPreferredSize());
     }
 
-    void initInserimenti () {
-        inserimenti = new JLabel[guess];
-    }
-
-    public void aggiornaComuni (JLabel[] inserimenti) {
-        for (int i = 1; i < inserimenti.length; i++) {
-            if (!(inserimenti[i] == null))
-                this.pannelloElencoComuni.add(inserimenti[i]);
-            else
-                this.pannelloElencoComuni.add(new JLabel(""));
-        }
+    public void aggiornaComuni (JLabel comuneInserito) {
+        pannelloElencoComuni.add(comuneInserito, pannelloElencoComuni.getComponentCount()-1);
+        pannelloElencoComuni.revalidate();
+        pannelloElencoComuni.repaint();
     }
 
     public Comune getComuneS() {
@@ -121,12 +115,6 @@ public class View extends JFrame {
     }
     public void setComuneD(Comune comuneD) {
         this.comuneD = comuneD;
-    }
-    public JLabel[] getInserimenti() {
-        return inserimenti;
-    }
-    public void setInserimenti(JLabel[] inserimenti) {
-        this.inserimenti = inserimenti;
     }
     public JSVGCanvas getCanvas() {
         return canvas;

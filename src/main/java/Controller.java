@@ -16,7 +16,7 @@ public class Controller {
     private Provincia provincia;
     List<String> nomiInseriti;
     Set<Comune> percorso;
-    boolean primoAvvio = true, okayInizioFine, vittoria = false;
+    boolean primoAvvio = true, okayInizioFine, vittoria = false, vaBeneInizioFine;
     Set<Comune> percorsoBreve = new HashSet<>();
     int max;
     String comuneSceltoInizio, comuneSceltoFine;
@@ -48,6 +48,8 @@ public class Controller {
 
         primaView.getBtnOkay().addActionListener(e -> iniziaGioco());
     }
+
+
 
     void iniziaGioco () {
         this.vista = new View("Trevol Verona");
@@ -99,7 +101,36 @@ public class Controller {
     }
     void prendiInizio() {
         comuneSceltoInizio = (String) primaView.getCmbComuneInizio().getSelectedItem();
+        vaBeneInizioFine = true;
+
+        if (Objects.equals(primaView.getCmbComuneInizio().getSelectedItem(), primaView.getCmbComuneFine().getSelectedItem())) {
+            JOptionPane.showMessageDialog(primaView.getFinestra(), "Hai scelto lo stesso comune");
+            primaView.getCmbComuneInizio().setSelectedIndex(0);
+            vaBeneInizioFine = false;
+        }
+
+        if (vaBeneInizioFine) {
+            for (Comune c :  provincia.getComuni()) {
+                boolean confinanti = false;
+                if (Objects.equals(primaView.getCmbComuneFine().getSelectedItem(), c.getNome())) {
+                    for (Comune comune : c.getNeighbours()) {
+                        if (Objects.equals(primaView.getCmbComuneInizio().getSelectedItem(), comune.getNome())) {
+                            JOptionPane.showMessageDialog(primaView.getFinestra(), "Hai selezionato un comune confinante");
+                            primaView.getCmbComuneInizio().setSelectedIndex(0);
+                            comuneSceltoInizio = (String) primaView.getCmbComuneInizio().getSelectedItem();
+                            confinanti =  true;
+                            break;
+                        }
+                    }
+                }
+                if (confinanti) break;
+            }
+        }
+
+
+
 //        System.out.println(comuneSceltoInizio);
+
         primaView.getCmbComuneFine().setEnabled(!comuneSceltoInizio.equalsIgnoreCase("seleziona il comune di inizio"));
     }
 
@@ -107,7 +138,7 @@ public class Controller {
         comuneSceltoFine = (String) primaView.getCmbComuneFine().getSelectedItem();
         okayInizioFine = true;
         if (Objects.equals(primaView.getCmbComuneInizio().getSelectedItem(), primaView.getCmbComuneFine().getSelectedItem())) {
-            JOptionPane.showMessageDialog(null, "Hai scelto lo stesso comune");
+            JOptionPane.showMessageDialog(primaView.getFinestra(), "Hai scelto lo stesso comune");
             primaView.getCmbComuneFine().setSelectedItem(primaView.getCmbComuneFine().getItemAt(0));
             okayInizioFine = false;
         }
@@ -117,7 +148,7 @@ public class Controller {
                 if (Objects.equals(primaView.getCmbComuneInizio().getSelectedItem(), c.getNome())) {
                     for (Comune comune : c.getNeighbours()) {
                         if (Objects.equals(primaView.getCmbComuneFine().getSelectedItem(), comune.getNome())) {
-                            JOptionPane.showMessageDialog(null, "Hai selezionato un confinante del comune di partenza");
+                            JOptionPane.showMessageDialog(primaView.getFinestra(), "Hai selezionato un comune confinante");
                             primaView.getCmbComuneFine().setSelectedItem(primaView.getCmbComuneFine().getItemAt(0));
                             comuneSceltoFine = (String) primaView.getCmbComuneFine().getSelectedItem();
                             confinanti =  true;
@@ -143,7 +174,7 @@ public class Controller {
 //            System.out.println("helo");
 //        jToggleButton.setText(primaView.getStrings(primaView.getBtns(Costanti.ID_FACILE), primaView.getBooleans(primaView.getBtns(Costanti.ID_FACILE))));
 //        primaView.getBtns(temp).setText(primaView.getStrings(jToggleButton, primaView.getBooleans(jToggleButton)));
-        primaView.getNomi(jToggleButton, state);
+        jToggleButton.setText(primaView.getStrings(jToggleButton, state));
     }
 
     boolean returnNegation(JToggleButton jToggleButton) {
@@ -207,7 +238,7 @@ public class Controller {
         if (!primaView.getBooleans(primaView.getBtns(Costanti.ID_INIZIO_FINE))) {
             randomInizioFine();
         } else {
-            customInizioFine(okayInizioFine);
+            customInizioFine(okayInizioFine, vaBeneInizioFine);
         }
     }
 
@@ -218,8 +249,8 @@ public class Controller {
         } while (provincia.getS().equals(provincia.getD()) || provincia.getS().getNeighbours().contains(provincia.getD()));
     }
 
-    void customInizioFine(boolean okayInizioFine) {
-        if (okayInizioFine) {
+    void customInizioFine(boolean okayInizioFine, boolean vaBeneInizioFine) {
+        if (okayInizioFine && vaBeneInizioFine) {
             for (Comune c : provincia.getComuni()) {
                 boolean trovatiEntrambi, trovatoFine = false, trovatoInizio = false;
                 if (c.getNome().equalsIgnoreCase(comuneSceltoFine)) {
@@ -266,28 +297,25 @@ public class Controller {
             vista.getLblMaxGuess().setText("Tentativi massimi: " + guess);
             vista.setGuess(guess);
             max = vista.getGuess();
-            vista.initInserimenti();
         } else {
             vista.getLblMaxGuess().setText("Tentativi illimitati!");
             vista.setGuess(98);
-            vista.initInserimenti();
-
         }
         if (primaView.getBooleans(primaView.getBtns(Costanti.ID_DIFFICILE))) {
-            vista.inserimenti[0] = new JLabel("???");
-            vista.inserimenti[vista.inserimenti.length - 1] = new JLabel("???");
+            vista.setSource(new JLabel("???"));
+            vista.setDestination(new JLabel("???"));
         } else {
-            vista.inserimenti[0] = new JLabel(provincia.getS().getNome().toUpperCase());
-            vista.inserimenti[vista.inserimenti.length - 1] = new JLabel(provincia.getD().getNome().toUpperCase());
+            vista.setSource(new JLabel(provincia.getS().getNome().toUpperCase()));
+            vista.setDestination(new JLabel(provincia.getD().getNome().toUpperCase()));
         }
-        vista.inserimenti[vista.inserimenti.length - 1].setForeground(Costanti.COLORE_JLABEL_FINE);
-        vista.inserimenti[0].setForeground(Costanti.COLORE_JLABEL_INIZIO);
+        vista.getDestination().setForeground(Costanti.COLORE_JLABEL_FINE);
+        vista.getSource().setForeground(Costanti.COLORE_JLABEL_INIZIO);
 
-        vista.inserimenti[0].setFont(Costanti.FONT_INSERIMENTI);
-        vista.inserimenti[vista.inserimenti.length-1].setFont(Costanti.FONT_INSERIMENTI);
+        vista.getSource().setFont(Costanti.FONT_INSERIMENTI);
+        vista.getDestination().setFont(Costanti.FONT_INSERIMENTI);
 
-        vista.getPannelloElencoComuni().add(vista.inserimenti[0]);
-        vista.getPannelloElencoComuni().add(vista.inserimenti[vista.inserimenti.length - 1]);
+        vista.getPannelloElencoComuni().add(vista.getSource());
+        vista.getPannelloElencoComuni().add(vista.getDestination());
         vista.getLblMaxGuess().setFont(new Font("Arial", Font.BOLD, 30));
         vista.getSource().setText(provincia.getS().getNome().toUpperCase());
         vista.getDestination().setText(provincia.getD().getNome().toUpperCase());
@@ -301,43 +329,43 @@ public class Controller {
         JLabel lblNuovoComune = null;
         String comuneInserito = vista.getInserisciComuni().getText().toUpperCase();
 
-        if (comuneInserito == null || comuneInserito.length() <= 0) {
-            JOptionPane.showMessageDialog(null, "Non hai inserito nulla nella barra di ricerca", "Errore", JOptionPane.ERROR_MESSAGE);
-        } else if (nomiInseriti.contains(comuneInserito)) {
-            JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale ad uno inserito precedentemente!", "Errore", JOptionPane.ERROR_MESSAGE);
-            vista.getInserisciComuni().setText("");
-        } else if (vista.getSource().getText().equals(comuneInserito)) {
-            JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale alla partenza ", "Errore", JOptionPane.ERROR_MESSAGE);
-            vista.getInserisciComuni().setText("");
-        } else if (vista.getDestination().getText().equals(comuneInserito)) {
-            JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale alla destinazione ", "Errore", JOptionPane.ERROR_MESSAGE);
-            vista.getInserisciComuni().setText("");
-        } else if (checkNome(provincia.getComuni(), comuneInserito)) {
-            aggiungiNome(provincia.getComuni(), comuneInserito);
+        if (comuneInserito.equalsIgnoreCase("exit")) {
+                System.exit(1);
+            } else if (comuneInserito == null || comuneInserito.length() <= 0) {
+                JOptionPane.showMessageDialog(null, "Non hai inserito nulla nella barra di ricerca", "Errore", JOptionPane.ERROR_MESSAGE);
+            } else if (nomiInseriti.contains(comuneInserito)) {
+                JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale ad uno inserito precedentemente!", "Errore", JOptionPane.ERROR_MESSAGE);
+                vista.getInserisciComuni().setText("");
+            } else if (vista.getSource().getText().equals(comuneInserito)) {
+                JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale alla partenza ", "Errore", JOptionPane.ERROR_MESSAGE);
+                vista.getInserisciComuni().setText("");
+            } else if (vista.getDestination().getText().equals(comuneInserito)) {
+                JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale alla destinazione ", "Errore", JOptionPane.ERROR_MESSAGE);
+                vista.getInserisciComuni().setText("");
+            } else if (checkNome(provincia.getComuni(), comuneInserito)) {
+                aggiungiNome(provincia.getComuni(), comuneInserito);
 
-            vista.getInserisciComuni().setText("");
+                vista.getInserisciComuni().setText("");
 
-            createNewSVGFile(comuneInserito.toLowerCase(), comuniSVG, provincia.getS().getNome(), provincia.getD().getNome());
-            aggiornaMappa();
+                createNewSVGFile(comuneInserito.toLowerCase(), comuniSVG, provincia.getS().getNome(), provincia.getD().getNome());
+                aggiornaMappa();
 
-            if (checkScelte(provincia.getScelte(), comuneInserito)) {
-                lblNuovoComune = new JLabel(comuneInserito.toUpperCase() + " \u263A");
-                lblNuovoComune.setForeground(Color.GREEN);
-            } else if (checkConfini(provincia.getScelte(), comuneInserito)) {
-                lblNuovoComune = new JLabel(comuneInserito.toUpperCase());
-                lblNuovoComune.setForeground(Color.ORANGE);
-            } else {
-                lblNuovoComune = new JLabel(comuneInserito.toUpperCase());
-                lblNuovoComune.setForeground(Color.RED);
-            }
+                if (checkScelte(provincia.getScelte(), comuneInserito)) {
+                    lblNuovoComune = new JLabel(comuneInserito.toUpperCase() + " \u263A");
+                    lblNuovoComune.setForeground(Color.GREEN);
+                } else if (checkConfini(provincia.getScelte(), comuneInserito)) {
+                    lblNuovoComune = new JLabel(comuneInserito.toUpperCase());
+                    lblNuovoComune.setForeground(Color.ORANGE);
+                } else {
+                    lblNuovoComune = new JLabel(comuneInserito.toUpperCase());
+                    lblNuovoComune.setForeground(Color.RED);
+                }
 
-            lblNuovoComune.setFont(Costanti.FONT_INSERIMENTI);
+                lblNuovoComune.setFont(Costanti.FONT_INSERIMENTI);
 
-            vista.inserimenti[i] = lblNuovoComune;
+                vista.aggiornaComuni(lblNuovoComune);
 
-            vista.aggiornaComuni(vista.inserimenti);
-
-            vista.getPannelloElencoComuni().validate();
+                vista.getPannelloElencoComuni().validate();
 /*            if (checkVittorie()) {
 
                 JOptionPane.showMessageDialog(null, "Complimenti, sei riuscito a collegare inizio e fine!", "HAI VINTO!", JOptionPane.INFORMATION_MESSAGE);
@@ -382,44 +410,46 @@ public class Controller {
             }
 
  */
-            if (sceltaIpotesi != 2) {
-                vista.setGuess(vista.getGuess()-1);
-                vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + max);
-            }
+                if (sceltaIpotesi != 2) {
+                    vista.setGuess(vista.getGuess()-1);
+                    vista.getLblMaxGuess().setText("Tentativi rimasti: " + vista.getGuess() + "/" + max);
+                }
 
 //            vittoria = checkVittorie() && vista.getGuess() >= 0;
 //            JOptionPane.showMessageDialog(null, vittoria);
-            if (vista.getGuess() >= 0) {
-                if (checkVittorie()) {
-                    vittoria = true;
+                if (vista.getGuess() >= 0) {
+                    if (checkVittorie()) {
+                        vittoria = true;
+                    }
                 }
-            }
-            if (vittoria) {
-                JOptionPane.showMessageDialog(vista, "Hai vinto!\nSei riuscito a collegare " + provincia.getS().getNome() + " e " + provincia.getD().getNome() + " entro i tentativi");
-                if (checkShortestPath()) {
-                    JOptionPane.showMessageDialog(vista, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " tentativi" + "\nLa soluzione più breve era in " + percorsoBreve.size() + " tentativi");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " " + singolareTentativi(percorso.size()) +
-                            "\nIl percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + singolareTentativi(percorsoBreve.size()));
-                    provincia.setScelte(null);
-                }
-                vittoria = false;
-                svuotaElementi();
-                playAgain();
-            } else if (vista.getGuess() <= 0){
-                JOptionPane.showMessageDialog(null, "Hai perso!\nNon sei riuscito a collegare " + provincia.getS().getNome() + " e " + provincia.getD().getNome() + " entro i tentativi!");
-                JOptionPane.showMessageDialog(null, "Il percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + singolareTentativi(percorsoBreve.size()));
-                svuotaElementi();
-                playAgain();
-            }
+                if (vittoria) {
+                    JOptionPane.showMessageDialog(vista, "Hai vinto!\nSei riuscito a collegare " + provincia.getS().getNome() + " e " + provincia.getD().getNome() + " entro i tentativi");
+                    if (checkShortestPath()) {
+                        JOptionPane.showMessageDialog(vista, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " tentativi" + "\nLa soluzione più breve era in " + percorsoBreve.size() + " tentativi");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Sei andato da " + provincia.getS().getNome() + " a " + provincia.getD().getNome() + " con " + percorso.size() + " " + singolareTentativi(percorso.size()) +
+                                "\nIl percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + singolareTentativi(percorsoBreve.size()));
+                        provincia.setScelte(null);
+                    }
+                    vittoria = false;
+                    svuotaElementi();
+                    playAgain();
+                } else if (vista.getGuess() <= 0){
+                    JOptionPane.showMessageDialog(null, "Hai perso!\nNon sei riuscito a collegare " + provincia.getS().getNome() + " e " + provincia.getD().getNome() + " entro i tentativi!");
+                    JOptionPane.showMessageDialog(null, "Il percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + singolareTentativi(percorsoBreve.size()));
 
-        } else {
-            if (primaView.getBooleans(primaView.getBtns(Costanti.ID_SENZA_VERONA)) && vista.getInserisciComuni().getText().equalsIgnoreCase("verona"))
-                JOptionPane.showMessageDialog(null, "Hai scelto la modalità senza Verona");
-            else {
-                JOptionPane.showMessageDialog(null, comuneInserito + " non \u00E8 un comune", "Errore", JOptionPane.ERROR_MESSAGE);
-            }
-            vista.getInserisciComuni().setText("");
+                    svuotaElementi();
+                    playAgain();
+                }
+
+            } else {
+                if (primaView.getBooleans(primaView.getBtns(Costanti.ID_SENZA_VERONA)) && vista.getInserisciComuni().getText().equalsIgnoreCase("verona"))
+                    JOptionPane.showMessageDialog(null, "Hai scelto la modalità senza Verona");
+                else {
+                    JOptionPane.showMessageDialog(null, comuneInserito + " non \u00E8 un comune", "Errore", JOptionPane.ERROR_MESSAGE);
+                }
+                vista.getInserisciComuni().setText("");
+
         }
 
     }
@@ -469,6 +499,7 @@ public class Controller {
         vista.getPannelloMappa().add(vista.getCanvas());
         vista.getPannelloMappa().revalidate();
         vista.getPannelloMappa().repaint();
+//        SwingUtilities.updateComponentTreeUI(vista.getPannelloMappa());
     }
 
     void aggiungiNome(List<Comune> comuni, String comuneInserito) {
@@ -542,21 +573,16 @@ public class Controller {
     }
 
     boolean checkNome(List<Comune> comuni, String nome) {
-        for (Comune c : comuni) {
-            String temp = c.getNome();
-            if (temp.equalsIgnoreCase(nome)) {
-                return true;
-            }
-        }
+        for (Comune c : comuni)
+            if (c.getNome().equalsIgnoreCase(nome)) return true;
+
         return false;
     }
 
     boolean checkScelte(List<Comune> scelte, String scelta) {
-        for (Comune c : scelte) {
-            String temp = c.getNome();
-            if (temp.equalsIgnoreCase(scelta))
-                return true;
-        }
+        for (Comune c : scelte)
+            if (c.getNome().equalsIgnoreCase(scelta)) return true;
+
         return false;
     }
 

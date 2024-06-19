@@ -242,18 +242,4 @@ public class PrimaView {
         else if (jToggleButton.equals(btnDifficile))
             difficile = state;
     }
-
-    public String getNomi (JToggleButton jToggleButton, boolean state) {
-        if (jToggleButton.equals(btnFacile)) {
-            return nomeFacile(state);
-        } else if (jToggleButton.equals(btnDifficile)) {
-            return nomeDiffficile(state);
-        } else if (jToggleButton.equals(btnInizioFine)) {
-            return nomeInizioFine(state);
-        } else if (jToggleButton.equals(btnSenzaVerona)) {
-            return nomeSenzaVerona(state);
-        }
-
-        return null;
-    }
 }
