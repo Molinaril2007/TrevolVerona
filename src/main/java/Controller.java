@@ -2,6 +2,8 @@ import org.apache.batik.swing.JSVGCanvas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.*;
@@ -22,20 +24,55 @@ public class Controller {
     String comuneSceltoInizio, comuneSceltoFine;
     List<String> comuniSVG;
     int sceltaIpotesi = 0;
+    private File file;
+    private FileInputStream fileInputStream;
+    private ObjectInputStream ois;
+    private FileOutputStream fileOutputStream;
+    private ObjectOutputStream oos;
 
+    ListaPartite partiteGiocate;
 
     //Costruttore
     public Controller(PrimaView primaView, Provincia provincia) {
         this.primaView = primaView;
         this.provincia = provincia;
 
-        primaView.getBtns(Costanti.ID_INIZIO_FINE).addActionListener(e -> gestisciBottone(primaView.getBtns(Costanti.ID_INIZIO_FINE)));
+        file = new File(".\\src\\main\\java\\Partite.ser");
 
-        primaView.getBtns(Costanti.ID_SENZA_VERONA).addActionListener(e -> gestisciBottone(primaView.getBtns(Costanti.ID_SENZA_VERONA)));
+        this.partiteGiocate = new ListaPartite();
 
-        primaView.getBtns(Costanti.ID_FACILE).addActionListener(e -> gestisciBottone(primaView.getBtns(Costanti.ID_FACILE)));
+        caricaModel();
 
-        primaView.getBtns(Costanti.ID_DIFFICILE).addActionListener(e -> gestisciBottone(primaView.getBtns(Costanti.ID_DIFFICILE)));
+        primaView.popolaPannello(partiteGiocate);
+
+        initPulsanti(primaView.getBtns(Costanti.ID_FACILE));
+        initPulsanti(primaView.getBtns(Costanti.ID_DIFFICILE));
+        initPulsanti(primaView.getBtns(Costanti.ID_INIZIO_FINE));
+        initPulsanti(primaView.getBtns(Costanti.ID_SENZA_VERONA));
+
+        aggiungiAscoltatori();
+
+        primaView.getBtnClear().addActionListener(e -> {
+            eseguiAzioneBottone(Costanti.ID_FACILE, false);
+            eseguiAzioneBottone(Costanti.ID_INIZIO_FINE, false);
+            eseguiAzioneBottone(Costanti.ID_SENZA_VERONA, false);
+            eseguiAzioneBottone(Costanti.ID_DIFFICILE, false);
+
+            primaView.getCmbComuneInizio().setEnabled(false);
+            primaView.getCmbComuneFine().setSelectedIndex(0);
+            primaView.getCmbComuneInizio().setSelectedIndex(0);
+            primaView.getCmbTentativi().setSelectedIndex(0);
+        });
+
+        primaView.getBtnCancellaStorico().addActionListener(e -> cancellaStorico());
+
+        primaView.getBtns(Costanti.ID_INIZIO_FINE).addActionListener(e -> gestisciBottone(Costanti.ID_INIZIO_FINE));
+
+        primaView.getBtns(Costanti.ID_SENZA_VERONA).addActionListener(e -> gestisciBottone(Costanti.ID_SENZA_VERONA));
+
+        primaView.getBtns(Costanti.ID_FACILE).addActionListener(e -> gestisciBottone(Costanti.ID_FACILE));
+
+        primaView.getBtns(Costanti.ID_DIFFICILE).addActionListener(e -> gestisciBottone(Costanti.ID_DIFFICILE));
 
         primaView.getCmbComuneInizio().addActionListener(e -> prendiInizio());
 
@@ -46,7 +83,180 @@ public class Controller {
 //            System.out.println(sceltaIpotesi);
         });
 
-        primaView.getBtnOkay().addActionListener(e -> iniziaGioco());
+        primaView.getBtnGioca().addActionListener(e -> iniziaGioco());
+    }
+
+    void cancellaStorico () {
+        int scelta = JOptionPane.showConfirmDialog(vista, "Procedere?");
+        if (scelta == 0) {
+            if (!partiteGiocate.listaPartiteGiocate.isEmpty()) {
+                partiteGiocate.listaPartiteGiocate.clear();
+                salvaSuDisco();
+            } else {
+                JOptionPane.showMessageDialog(primaView.getFinestra(), "La lista \u00e8 vuota!");
+            }
+        }
+        primaView.popolaPannello(partiteGiocate);
+    }
+
+    void initPulsanti (JToggleButton jToggleButton) {
+        jToggleButton.setContentAreaFilled(false);
+        jToggleButton.setOpaque(true);
+        setNome(jToggleButton);
+        setColore(jToggleButton);
+    }
+
+    void aggiungiAscoltatori () {
+        for (int i = 1; i < primaView.getPnlTotal().getComponentCount(); i++) {
+            JPanel pannelloPartita = (JPanel) primaView.getPnlTotal().getComponent(i);
+            JButton btnOpzioni = (JButton) pannelloPartita.getComponent(pannelloPartita.getComponentCount()-2);
+            JButton btnGioca = (JButton) pannelloPartita.getComponent(pannelloPartita.getComponentCount()-1);
+            JLabel lblComuneInizio = (JLabel) pannelloPartita.getComponent(0);
+            JLabel lblComuneFine = (JLabel) pannelloPartita.getComponent(1);
+            int finalI = i-1;
+            btnOpzioni.addActionListener(e-> ascoltatoriOpzioni(finalI));
+            btnGioca.addActionListener(e -> ascoltatoreGioca(finalI));
+            ascoltatoreLabel(lblComuneInizio);
+            ascoltatoreLabel(lblComuneFine);
+        }
+    }
+
+    void ascoltatoreGioca (int n) {
+        Partita partitaAttuale = partiteGiocate.listaPartiteGiocate.get(n);
+        initPartita(partitaAttuale);
+    }
+
+    void initPartita (Partita partitaAttuale) {
+        JOptionPane.showMessageDialog(primaView.getFinestra(), "Carichiamo la partita!");
+        eseguiAzioneBottone(Costanti.ID_FACILE, partitaAttuale.getOpzioni()[0]);
+
+        eseguiAzioneBottone(Costanti.ID_SENZA_VERONA, partitaAttuale.getOpzioni()[2]);
+
+        eseguiAzioneBottone(Costanti.ID_DIFFICILE, partitaAttuale.getOpzioni()[3]);
+
+        eseguiAzioneBottone(Costanti.ID_INIZIO_FINE, true);
+
+        primaView.getCmbComuneInizio().setEnabled(primaView.getBooleans(primaView.getBtns(Costanti.ID_INIZIO_FINE)));
+        primaView.getCmbComuneInizio().setSelectedItem(partitaAttuale.getInizio().getNome());
+        primaView.getCmbComuneFine().setSelectedItem(partitaAttuale.getFine().getNome());
+        provincia.setS(partitaAttuale.getInizio());
+        provincia.setD(partitaAttuale.getFine());
+
+        primaView.getCmbTentativi().setSelectedIndex(partitaAttuale.getSceltaTentativi());
+
+        JOptionPane.showMessageDialog(primaView.getFinestra(), "Combo inizio: "+primaView.getCmbComuneInizio().isEnabled());
+    }
+
+    void eseguiAzioneBottone (String idPulsante, boolean state) {
+        primaView.setBooleans(primaView.getBtns(idPulsante), state);
+//        primaView.getBtns(idPulsante).setSelected(primaView.getBooleans(primaView.getBtns(idPulsante)));
+        setNome(primaView.getBtns(idPulsante));
+        setColore(primaView.getBtns(idPulsante));
+    }
+
+    void ascoltatoriOpzioni (int n) {
+        String msg = "";
+        for (int i = 0; i < partiteGiocate.listaPartiteGiocate.get(n).getOpzioni().length; i++) {
+            msg += "\nModalità " + qualeModalita(i) + ": " + sceltiParametri(partiteGiocate.listaPartiteGiocate.get(n).getOpzioni()[i]);
+        }
+        msg += "\n\n"+primaView.getCmbTentativi().getItemAt(partiteGiocate.listaPartiteGiocate.get(n).getSceltaTentativi());
+        JOptionPane.showMessageDialog(primaView.getFinestra(), msg);
+    }
+
+    String sceltiParametri (boolean chosen) {
+        if (chosen) return "scelta";
+        else return "non scelta";
+    }
+
+    String qualeModalita (int n) {
+        switch (n) {
+            case 0:
+                return "facile";
+            case 1:
+                return "custom";
+            case 2:
+                return "senza Verona";
+            case 3:
+                return "difficile";
+        }
+
+        return null;
+    }
+
+    void ascoltatoreLabel (JLabel lbl) {
+        lbl.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(primaView.getFinestra(), lbl.getText());
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+    }
+
+    private void setColore(JToggleButton jToggleButton) {
+        jToggleButton.setBackground(primaView.getColors(jToggleButton, primaView.getBooleans(jToggleButton)));
+    }
+
+    void initInputStreams () {
+        try {
+            fileInputStream = new FileInputStream(file);
+            ois = new ObjectInputStream(fileInputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void initOutputStreams () {
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            oos = new ObjectOutputStream(fileOutputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void salvaSuDisco () {
+        try {
+            initOutputStreams();
+            oos.writeObject(partiteGiocate);
+            oos.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void caricaModel () {
+        initInputStreams();
+        if (file.exists()) {
+            try {
+                partiteGiocate = (ListaPartite) ois.readObject();
+                //TODO: eliminare questa stampa a schermo
+                for (Partita partita : partiteGiocate.getListaPartiteGiocate()) {
+                    System.out.println(partita);
+                }
+                ois.close();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 
@@ -83,10 +293,9 @@ public class Controller {
         //-------------------------------------------------------------
     }
 
-    void gestisciBottone (JToggleButton jToggleButton) {
-        primaView.setBooleans(jToggleButton, returnNegation(jToggleButton));
-        setNome(jToggleButton, primaView.getBooleans(jToggleButton));
-        if (jToggleButton.equals(primaView.getBtns(Costanti.ID_INIZIO_FINE))) {
+    void gestisciBottone (String idPulsante) {
+        eseguiAzioneBottone(idPulsante, primaView.getBtns(idPulsante).isSelected());
+        if (primaView.getBtns(idPulsante).equals(primaView.getBtns(Costanti.ID_INIZIO_FINE))) {
             primaView.getCmbComuneInizio().setEnabled(primaView.getBooleans(primaView.getBtns(Costanti.ID_INIZIO_FINE)));
             if (!primaView.getBooleans(primaView.getBtns(Costanti.ID_INIZIO_FINE))) {
                 primaView.getCmbComuneFine().setEnabled(primaView.getBooleans(primaView.getBtns(Costanti.ID_INIZIO_FINE)));
@@ -162,7 +371,7 @@ public class Controller {
 //        System.out.println(comuneSceltoFine);
     }
 
-    void setNome(JToggleButton jToggleButton, boolean state) {
+    void setNome(JToggleButton jToggleButton) {
 //        String temp = "";
 //        if (jToggleButton.equals(primaView.getBtns(Costanti.ID_FACILE))) {
 //            primaView.getBtns(Costanti.ID_FACILE).setText(primaView.nomeFacile(primaView.getBooleans(jToggleButton)));
@@ -174,7 +383,7 @@ public class Controller {
 //            System.out.println("helo");
 //        jToggleButton.setText(primaView.getStrings(primaView.getBtns(Costanti.ID_FACILE), primaView.getBooleans(primaView.getBtns(Costanti.ID_FACILE))));
 //        primaView.getBtns(temp).setText(primaView.getStrings(jToggleButton, primaView.getBooleans(jToggleButton)));
-        jToggleButton.setText(primaView.getStrings(jToggleButton, state));
+        jToggleButton.setText(primaView.getStrings(jToggleButton, primaView.getBooleans(jToggleButton)));
     }
 
     boolean returnNegation(JToggleButton jToggleButton) {
@@ -293,6 +502,7 @@ public class Controller {
                 guess = -1;
                 break;
         }
+
         if (guess != -1) {
             vista.getLblMaxGuess().setText("Tentativi massimi: " + guess);
             vista.setGuess(guess);
@@ -301,12 +511,13 @@ public class Controller {
             vista.getLblMaxGuess().setText("Tentativi illimitati!");
             vista.setGuess(98);
         }
+
         if (primaView.getBooleans(primaView.getBtns(Costanti.ID_DIFFICILE))) {
-            vista.setSource(new JLabel("???"));
-            vista.setDestination(new JLabel("???"));
+            vista.getSource().setText("???");
+            vista.getDestination().setText("???");
         } else {
-            vista.setSource(new JLabel(provincia.getS().getNome().toUpperCase()));
-            vista.setDestination(new JLabel(provincia.getD().getNome().toUpperCase()));
+            vista.getSource().setText(provincia.getS().getNome().toUpperCase());
+            vista.getDestination().setText(provincia.getD().getNome().toUpperCase());
         }
         vista.getDestination().setForeground(Costanti.COLORE_JLABEL_FINE);
         vista.getSource().setForeground(Costanti.COLORE_JLABEL_INIZIO);
@@ -316,9 +527,10 @@ public class Controller {
 
         vista.getPannelloElencoComuni().add(vista.getSource());
         vista.getPannelloElencoComuni().add(vista.getDestination());
+
         vista.getLblMaxGuess().setFont(new Font("Arial", Font.BOLD, 30));
-        vista.getSource().setText(provincia.getS().getNome().toUpperCase());
-        vista.getDestination().setText(provincia.getD().getNome().toUpperCase());
+//        vista.getSource().setText(provincia.getS().getNome().toUpperCase());
+//        vista.getDestination().setText(provincia.getD().getNome().toUpperCase());
     }
 
 
@@ -336,10 +548,10 @@ public class Controller {
             } else if (nomiInseriti.contains(comuneInserito)) {
                 JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale ad uno inserito precedentemente!", "Errore", JOptionPane.ERROR_MESSAGE);
                 vista.getInserisciComuni().setText("");
-            } else if (vista.getSource().getText().equals(comuneInserito)) {
+            } else if (provincia.getS().getNome().equalsIgnoreCase(comuneInserito)) {
                 JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale alla partenza ", "Errore", JOptionPane.ERROR_MESSAGE);
                 vista.getInserisciComuni().setText("");
-            } else if (vista.getDestination().getText().equals(comuneInserito)) {
+            } else if (provincia.getD().getNome().equalsIgnoreCase(comuneInserito)) {
                 JOptionPane.showMessageDialog(null, "Il comune inserito \u00e8 uguale alla destinazione ", "Errore", JOptionPane.ERROR_MESSAGE);
                 vista.getInserisciComuni().setText("");
             } else if (checkNome(provincia.getComuni(), comuneInserito)) {
@@ -394,7 +606,7 @@ public class Controller {
                 else
                     System.out.println("Finestra chiusa");
                 System.out.println("Helo");
-                vista.getInserisciComuni().setEditable(false);
+                vista.getisciComuni().setEditable(false);
                 vista.getPulsanteInvia().setEnabled(false);
             }
             if (sceltaIpotesi != 2) {
@@ -431,13 +643,18 @@ public class Controller {
                                 "\nIl percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + singolareTentativi(percorsoBreve.size()));
                         provincia.setScelte(null);
                     }
+                    partiteGiocate.getListaPartiteGiocate().add(new Partita(provincia.getD(), provincia.getS(), provincia.getShortestpath().size(), percorso.size(), prendiOpzioni(), sceltaIpotesi, vittoria));
+                    salvaSuDisco();
+                    primaView.popolaPannello(partiteGiocate);
                     vittoria = false;
                     svuotaElementi();
                     playAgain();
                 } else if (vista.getGuess() <= 0){
                     JOptionPane.showMessageDialog(null, "Hai perso!\nNon sei riuscito a collegare " + provincia.getS().getNome() + " e " + provincia.getD().getNome() + " entro i tentativi!");
                     JOptionPane.showMessageDialog(null, "Il percorso più corto era: " + printCollection(provincia.getScelte()) + "\nLa soluzione più breve era di " + percorsoBreve.size() + " " + singolareTentativi(percorsoBreve.size()));
-
+                    partiteGiocate.getListaPartiteGiocate().add(new Partita(provincia.getD(), provincia.getS(), provincia.getShortestpath().size(), percorso.size(), prendiOpzioni(), sceltaIpotesi, vittoria));
+                    salvaSuDisco();
+                    primaView.popolaPannello(partiteGiocate);
                     svuotaElementi();
                     playAgain();
                 }
@@ -454,14 +671,24 @@ public class Controller {
 
     }
 
+    boolean[] prendiOpzioni () {
+        boolean[] opzioni = new boolean[4];
+        opzioni[0] = primaView.getBooleans(primaView.getBtns(Costanti.ID_FACILE));
+        opzioni[1] = primaView.getBooleans(primaView.getBtns(Costanti.ID_INIZIO_FINE));
+        opzioni[2] = primaView.getBooleans(primaView.getBtns(Costanti.ID_SENZA_VERONA));
+        opzioni[3] = primaView.getBooleans(primaView.getBtns(Costanti.ID_DIFFICILE));
+
+        return opzioni;
+    }
+
     void svuotaElementi () {
         comuniSVG = null;
         percorso = null;
         nomiInseriti = null;
     }
 
-    public String singolareTentativi (int x) {
-        if (x == 1)
+    public String singolareTentativi (int n) {
+        if (n == 1)
             return "tentativo";
         else
             return "tentativi";
@@ -471,6 +698,7 @@ public class Controller {
         if (scelta == 0) {
 //            System.out.println("Hai premuto si");
             vista.setVisible(false);
+            aggiungiAscoltatori();
             primaView.getFinestra().setVisible(true);
         } else if (scelta == 1) {
 //            System.out.println("hai premuto no");

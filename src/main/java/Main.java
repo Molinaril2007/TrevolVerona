@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args)  {
         Provincia provincia = new Provincia();
         PrimaView primaView = new PrimaView(provincia);
-        View vista = new View("Trevol Verona");
+//        View vista = new View("Trevol Verona");
         Controller controller = new Controller(primaView, provincia);
     }
 }

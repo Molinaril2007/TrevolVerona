@@ -27,9 +27,7 @@ public class View extends JFrame {
         pulsanteInvia = new JButton("Invia");
         comuneInserito = "";
         source = new JLabel();
-        source.setForeground(new Color(163, 73, 164));
         destination = new JLabel();
-        destination.setForeground(new Color(255, 242, 0));
         canvas = new JSVGCanvas();
         lblMaxGuess = new JLabel();
 
